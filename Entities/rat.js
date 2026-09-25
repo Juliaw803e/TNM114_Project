@@ -10,7 +10,7 @@ class Rat {
         this.hunger = 0;
         this.hungerTimer = new Timer(5);
 
-        this.speed = 2;
+        this.speed = 1;
         this.fear = 0.5;
 
         this.isAffected = false;
@@ -19,10 +19,21 @@ class Rat {
         this.isHunted = false;
         this.isEating = false;
     }
+
+    addParasite(parasite) {
+        this.isAffected = true;
+        this.parasiteId = parasite.id;
+    }
+
     //Rita en cirkel med råttans x och y.
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
+        if (this.isAffected) {
+            ctx.fillStyle = "red";
+        } else {
+            ctx.fillStyle = "gray";
+        }
         ctx.fill();
     }
 }

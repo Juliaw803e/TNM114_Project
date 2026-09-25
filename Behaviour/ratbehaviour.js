@@ -18,7 +18,7 @@ class RatBehaviour {
     }
 
     move(rat) {   
-        rat.x += rat.speed;
+        rat.x += rat.speed; 
     }
 
     flee(rat) {

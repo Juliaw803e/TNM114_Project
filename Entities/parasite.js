@@ -1,4 +1,4 @@
-class Parasite {
+export default class Parasite {
     constructor(id) {
         this.id = id;
 
