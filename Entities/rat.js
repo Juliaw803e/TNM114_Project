@@ -10,7 +10,7 @@ class Rat {
         this.hunger = 0;
         this.hungerTimer = new Timer(5);
 
-        this.speed = 1;
+        this.speed = 80;
         this.fear = 0.5;
 
         this.isAffected = false;

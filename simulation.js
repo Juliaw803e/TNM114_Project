@@ -17,7 +17,7 @@ class Simulation {
         this.cats = [];
         this.parasites = [];
 
-        this.ratBehaviour = new RatBehaviour();
+        this.behaviourstore = []; //array för att alla ska ha eget betende
 
         // Create rats ska komma från input istället för 10!!
         for (let i = 0; i < 10; i++) {
@@ -28,6 +28,8 @@ class Simulation {
             );
 
             this.rats.push(rat);
+            const behaviour = new RatBehaviour();
+            this.behaviourstore.push(behaviour);
         }
 
         //Add initila parasites to random rats: 
@@ -71,10 +73,11 @@ class Simulation {
             this.canvas.width,
             this.canvas.height
         );
-    
-        for (const rat of this.rats) {
-            this.ratBehaviour.update(rat, deltaTime);
-            rat.draw(this.ctx);
+        
+        //Update and draw rats
+        for (let i = 0; i < this.rats.length; i++) {
+            this.behaviourstore[i].update(this.rats[i], deltaTime, this.canvas);
+            this.rats[i].draw(this.ctx);
         }
 
            // Update and draw cats
