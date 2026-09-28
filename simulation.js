@@ -16,6 +16,7 @@ class Simulation {
         this.rats = [];
         this.cats = [];
         this.parasites = [];
+        console.log(this.parasites);
 
         this.ratBehaviour = new RatBehaviour();
 
@@ -53,6 +54,7 @@ class Simulation {
             const behaviour = new CatBehaviour(cat, this.rats);
             this.catBehaviours.push(behaviour);
         }
+  
     }
 
     start() {
