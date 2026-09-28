@@ -7,8 +7,8 @@ class Rat {
         this.x = x;
         this.y = y;
 
-        this.hunger = 0;
-        this.hungerTimer = new Timer(5);
+        //this.hunger = 0;
+        //this.hungerTimer = new Timer(5);
 
         this.speed = 70;
         this.fear = 0.5;
@@ -18,8 +18,10 @@ class Rat {
 
         this.isHunted = false;
         this.huntedBy = null; 
-        this.isCaught = false; 
+        this.isCaught = false;
+
         this.isEating = false;
+        this.eatingTimer = new Timer(3); // äter i 2 sekunder
     }
 
     addParasite(parasite) {

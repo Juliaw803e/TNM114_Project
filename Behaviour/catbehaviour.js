@@ -1,8 +1,11 @@
+import Poo from "../Entities/poo.js";
+
 export class CatBehaviour {
-    constructor(cat, rats) {
+    constructor(cat, rats, poos) {
         this.cat = cat;
         this.rats = rats;
         this.targetRat = null;
+        this.poos = poos;
 
         this.detectionRadius = 40; 
         this.catchDistance = 30;
@@ -26,7 +29,16 @@ export class CatBehaviour {
             }
         }
 
-        this.poop(); 
+         // Hantera poop: 
+        this.cat.poopTimer.update(deltaTime);
+
+        if (
+            this.cat.poopTimer.isFinished() &&
+            this.cat.poopCount < this.cat.maxPoops
+        ) {
+            this.poop();
+            this.cat.poopTimer.reset();
+        }
     }
 
     findTarget() {
@@ -79,13 +91,14 @@ export class CatBehaviour {
     catchRat() {
          // Vad som händer med råttan efter att katten fångat den
         // kan vi bestämma senare.
-        console.log("CAT CAUGHT RAT", this.targetRat.id);
         this.targetRat.isCaught = true;
 
         this.targetRat.isHunted = false;
         this.targetRat.huntedBy = null;
     
         this.targetRat = null;
+        this.cat.poopTimer.reset(); //När den fångat börjar timern
+
     }
     loseTarget() {
         this.targetRat.isHunted = false;
@@ -123,7 +136,14 @@ export class CatBehaviour {
         }
     }
 
+    //Nu poopar den alltid efter 6 sekunder, om den måste ätit inann så ska vi lägga in en flagga
     poop() {
-        // poop-logik kommer här
+        if (this.cat.poopCount < this.cat.maxPoops) {
+            const poo = new Poo(this.cat.x, this.cat.y);
+    
+            this.poos.push(poo);
+    
+            this.cat.poopCount++;
+        }
     }
 }

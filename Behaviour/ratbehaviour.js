@@ -8,18 +8,19 @@ class RatBehaviour {
     }
 
     //deltaTime som andra parameter
-    update(rat, deltaTime, canvas) {
-        rat.hungerTimer.update(deltaTime);
-        if (rat.hungerTimer.isFinished()) {
-            rat.hunger = 1;
-        }
-
+    update(rat, deltaTime, canvas, poos) {
         if (rat.isHunted) {
             this.flee(rat, deltaTime, canvas);
-        } else if (rat.isEating) {
-            this.eat(rat);
-        } else {
-            this.move(rat, deltaTime, canvas);
+        } 
+        else if (rat.isEating) {
+            this.eat(rat, deltaTime);
+        } 
+        else {
+            this.findPoo(rat, poos);
+            
+            if (!rat.isEating) {
+                this.move(rat, deltaTime, canvas);
+            }
         }
     }
 
@@ -84,8 +85,28 @@ class RatBehaviour {
         this.handleEdges(rat, canvas);
     }
 
-    eat(rat) {
-        // Eating behaviour will be implemented later poo
+    findPoo(rat, poos) {
+        for (const poo of poos) {
+    
+            const dx = poo.x - rat.x;
+            const dy = poo.y - rat.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+    
+            if (distance < 20 && !rat.isEating) {
+                rat.isEating = true;
+                rat.eatingTimer.reset();
+                return;
+            }
+        }
+    }
+
+    eat(rat, deltaTime) {
+        rat.eatingTimer.update(deltaTime);
+    
+        if (rat.eatingTimer.isFinished()) {
+            rat.isEating = false;
+            rat.eatingTimer.reset();
+        }
     }
 
     handleEdges(rat, canvas) {

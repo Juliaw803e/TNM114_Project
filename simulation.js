@@ -3,6 +3,7 @@ import RatBehaviour from "./Behaviour/ratbehaviour.js";
 import Cat from "./Entities/cat.js";
 import { CatBehaviour } from "./Behaviour/catbehaviour.js";
 import Parasite from "./Entities/parasite.js";
+import Poo from "./Entities/poo.js";
 
 class Simulation {
     constructor(canvas) {
@@ -15,12 +16,13 @@ class Simulation {
         this.rats = [];
         this.cats = [];
         this.parasites = [];
+        this.poos = []; 
 
         this.behaviourstore = []; //array för att alla ska ha eget betende
         this.catBehaviours = []; //array katter 
 
         // Create rats ska komma från input istället för 10!!
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 10; i++) {
             const rat = new Rat(
                 i,
                 Math.random() * this.canvas.width,
@@ -52,7 +54,7 @@ class Simulation {
             );
         
             this.cats.push(cat);
-            const behaviour = new CatBehaviour(cat, this.rats);
+            const behaviour = new CatBehaviour(cat, this.rats, this.poos);
             this.catBehaviours.push(behaviour);
         }
     }
@@ -76,7 +78,7 @@ class Simulation {
         
         //Update and draw rats
         for (let i = 0; i < this.rats.length; i++) {
-            this.behaviourstore[i].update(this.rats[i], deltaTime, this.canvas);
+            this.behaviourstore[i].update(this.rats[i], deltaTime, this.canvas, this.poos);
             
             if (!this.rats[i].isCaught) {
                 this.rats[i].draw(this.ctx);
@@ -89,6 +91,11 @@ class Simulation {
         }
         for (const cat of this.cats) {
             cat.draw(this.ctx);
+        }
+
+        //test rita ut poo: 
+        for (const poo of this.poos) {
+            poo.draw(this.ctx);
         }
     
         requestAnimationFrame((time) => this.update(time));
