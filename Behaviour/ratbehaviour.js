@@ -15,7 +15,7 @@ class RatBehaviour {
         }
 
         if (rat.isHunted) {
-            this.flee(rat);
+            this.flee(rat, deltaTime, canvas);
         } else if (rat.isEating) {
             this.eat(rat);
         } else {
@@ -41,33 +41,69 @@ class RatBehaviour {
         rat.y += this.directionY * rat.speed * deltaTime;
 
         // Håll råttan inne i canvasen 
-        if (rat.x < 10) {
-            rat.x = 10;
-            this.directionX *= -1;
-        }
-    
-        if (rat.x > canvas.width - 10) {
-            rat.x = canvas.width - 10;
-            this.directionX *= -1;
-        }
-    
-        if (rat.y < 10) {
-            rat.y = 10;
-            this.directionY *= -1;
-        }
-    
-        if (rat.y > canvas.height - 10) {
-            rat.y = canvas.height - 10;
-            this.directionY *= -1;
-        }
+        this.handleEdges(rat, canvas);
     }
 
-    flee(rat) {
-        rat.x -= rat.speed * 2;
+    flee(rat, deltaTime, canvas) {
+        const cat = rat.huntedBy;
+    
+        if (!cat) {
+            return;
+        }
+    
+        let dx = rat.x - cat.x;
+        let dy = rat.y - cat.y;
+    
+        const distance = Math.sqrt(dx * dx + dy * dy);
+    
+        if (distance > 0) {
+            dx /= distance;
+            dy /= distance;
+    
+            // Tvinga råttan bort från kanten
+            if (rat.x <= 10 && dx < 0) {
+                dx = 0;
+            }
+    
+            if (rat.x >= canvas.width - 10 && dx > 0) {
+                dx = 0;
+            }
+    
+            if (rat.y <= 10 && dy < 0) {
+                dy = 0;
+            }
+    
+            if (rat.y >= canvas.height - 10 && dy > 0) {
+                dy = 0;
+            }
+    
+            rat.x += dx * rat.speed * 1.5 * deltaTime;
+            rat.y += dy * rat.speed * 1.5 * deltaTime;
+        }
+    
+        this.handleEdges(rat, canvas);
     }
 
     eat(rat) {
         // Eating behaviour will be implemented later poo
+    }
+
+    handleEdges(rat, canvas) {
+        if (rat.x < 10) {
+            rat.x = 10;
+        }
+
+        if (rat.x > canvas.width - 10) {
+            rat.x = canvas.width - 10;
+        }
+
+        if (rat.y < 10) {
+            rat.y = 10;
+        }
+
+        if (rat.y > canvas.height - 10) {
+            rat.y = canvas.height - 10;
+        }
     }
 }
 

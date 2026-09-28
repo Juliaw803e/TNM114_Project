@@ -6,7 +6,7 @@ export default class Cat {
         this.y = y;
 
         this.hunger = 0;
-        this.speed = 60;
+        this.speed = 100;
 
         this.isAffected = false;
 
@@ -19,7 +19,7 @@ export default class Cat {
 
     draw(ctx) {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 12, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, 18, 0, Math.PI * 2);
         ctx.fillStyle = "orange";
         ctx.fill();
     }

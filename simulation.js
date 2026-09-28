@@ -4,7 +4,6 @@ import Cat from "./Entities/cat.js";
 import { CatBehaviour } from "./Behaviour/catbehaviour.js";
 import Parasite from "./Entities/parasite.js";
 
-
 class Simulation {
     constructor(canvas) {
         this.canvas = canvas;
@@ -18,9 +17,10 @@ class Simulation {
         this.parasites = [];
 
         this.behaviourstore = []; //array för att alla ska ha eget betende
+        this.catBehaviours = []; //array katter 
 
         // Create rats ska komma från input istället för 10!!
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             const rat = new Rat(
                 i,
                 Math.random() * this.canvas.width,
@@ -42,8 +42,8 @@ class Simulation {
         this.rats[1].addParasite(parasite2);
         this.rats[2].addParasite(parasite3);
 
-        this.catBehaviours = [];
-        //Create cats
+        
+        //Create cats: 
         for (let i = 0; i < 2; i++) {
             const cat = new Cat(
                 i, 
@@ -77,12 +77,15 @@ class Simulation {
         //Update and draw rats
         for (let i = 0; i < this.rats.length; i++) {
             this.behaviourstore[i].update(this.rats[i], deltaTime, this.canvas);
-            this.rats[i].draw(this.ctx);
+            
+            if (!this.rats[i].isCaught) {
+                this.rats[i].draw(this.ctx);
+            }
         }
 
            // Update and draw cats
         for (const behaviour of this.catBehaviours) {
-            behaviour.update(deltaTime);
+            behaviour.update(deltaTime, this.canvas);
         }
         for (const cat of this.cats) {
             cat.draw(this.ctx);

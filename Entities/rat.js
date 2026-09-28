@@ -10,13 +10,15 @@ class Rat {
         this.hunger = 0;
         this.hungerTimer = new Timer(5);
 
-        this.speed = 80;
+        this.speed = 70;
         this.fear = 0.5;
 
         this.isAffected = false;
         this.parasiteId = null;
 
         this.isHunted = false;
+        this.huntedBy = null; 
+        this.isCaught = false; 
         this.isEating = false;
     }
 

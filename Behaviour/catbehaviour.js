@@ -2,55 +2,128 @@ export class CatBehaviour {
     constructor(cat, rats) {
         this.cat = cat;
         this.rats = rats;
+        this.targetRat = null;
 
-        this.detectionRadius = 80;
+        this.detectionRadius = 40; 
+        this.catchDistance = 30;
+
         this.directionX = Math.random() * 2 - 1;
         this.directionY = Math.random() * 2 - 1;
     }
 
-    update(deltaTime) {
-        let closestRat = null;
-        let closestDistance = this.detectionRadius;
+    update(deltaTime, canvas) {
+        //Har en råtta den jagar?
+        if (this.targetRat) {
+            this.chase(deltaTime, canvas);
+        } else {
+            this.findTarget();
 
-        // Look for a rat nearby
+            if (this.targetRat) {
+                this.startHunt();
+            }
+            else{
+                this.move(deltaTime, canvas);
+            }
+        }
+
+        this.poop(); 
+    }
+
+    findTarget() {
         for (const rat of this.rats) {
+
             const dx = rat.x - this.cat.x;
             const dy = rat.y - this.cat.y;
 
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestRat = rat;
+            if (!rat.isCaught && distance < this.detectionRadius) {
+                this.targetRat = rat;
+                return;
             }
         }
+    }
 
-        // If a rat is nearby, move towards it
-        if (closestRat) {
-            const dx = closestRat.x - this.cat.x;
-            const dy = closestRat.y - this.cat.y;
+    startHunt() {
+        this.targetRat.isHunted = true;
+        this.targetRat.huntedBy = this.cat;
+    }
 
-            const distance = Math.sqrt(dx * dx + dy * dy);
+    chase(deltaTime, canvas) {
+        const rat = this.targetRat;
 
-            if (distance > 0) {
-                this.cat.x += (dx / distance) * this.cat.speed * deltaTime;
-                this.cat.y += (dy / distance) * this.cat.speed * deltaTime;
-            }
+        const dx = rat.x - this.cat.x;
+        const dy = rat.y - this.cat.y;
+
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Katten fångar råttan
+        if (distance < this.catchDistance) {
+            this.catchRat();
+            return;
+        }
+        //Råttan kommer undan
+        if (distance > 200) {
+            this.loseTarget();
+            return;
         }
 
-        // Otherwise, wander around
-        else {
-            this.cat.x += this.directionX * this.cat.speed * deltaTime;
-            this.cat.y += this.directionY * this.cat.speed * deltaTime;
+        if (distance > 0) {
+            this.cat.x += (dx / distance) * this.cat.speed * deltaTime;
+            this.cat.y += (dy / distance) * this.cat.speed * deltaTime;
         }
 
-        // Keep cat inside canvas
-        if (this.cat.x < 0 || this.cat.x > 800) {
+        this.keepInsideCanvas(canvas);
+    }
+
+    catchRat() {
+         // Vad som händer med råttan efter att katten fångat den
+        // kan vi bestämma senare.
+        console.log("CAT CAUGHT RAT", this.targetRat.id);
+        this.targetRat.isCaught = true;
+
+        this.targetRat.isHunted = false;
+        this.targetRat.huntedBy = null;
+    
+        this.targetRat = null;
+    }
+    loseTarget() {
+        this.targetRat.isHunted = false;
+        this.targetRat.huntedBy = null;
+    
+        this.targetRat = null;
+    }
+
+    move(deltaTime, canvas) {
+        this.cat.x += this.directionX * this.cat.speed * deltaTime;
+        this.cat.y += this.directionY * this.cat.speed * deltaTime;
+
+        this.keepInsideCanvas(canvas);
+    }
+
+    keepInsideCanvas(canvas) {
+        if (this.cat.x < 10) {
+            this.cat.x = 10;
             this.directionX *= -1;
         }
 
-        if (this.cat.y < 0 || this.cat.y > 600) {
+        if (this.cat.x > canvas.width - 10) {
+            this.cat.x = canvas.width - 10;
+            this.directionX *= -1;
+        }
+
+        if (this.cat.y < 10) {
+            this.cat.y = 10;
             this.directionY *= -1;
         }
+
+        if (this.cat.y > canvas.height - 10) {
+            this.cat.y = canvas.height - 10;
+            this.directionY *= -1;
+        }
+    }
+
+    poop() {
+        // poop-logik kommer här
     }
 }
