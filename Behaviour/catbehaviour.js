@@ -95,10 +95,22 @@ export class CatBehaviour {
 
         this.targetRat.isHunted = false;
         this.targetRat.huntedBy = null;
+
+        //Om råttan är smittad så blir katten också
+        if (this.targetRat.isAffected) {
+
+            this.cat.isAffected = true;
+        
+            if (this.cat.currentParasite === null) {
+                this.cat.currentParasite = this.targetRat.parasiteId;
+            } 
+            else if (this.cat.secondParasite === null) {
+                this.cat.secondParasite = this.targetRat.parasiteId;
+            }
+        }
     
         this.targetRat = null;
         this.cat.poopTimer.reset(); //När den fångat börjar timern
-
     }
     loseTarget() {
         this.targetRat.isHunted = false;
