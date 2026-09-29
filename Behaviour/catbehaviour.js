@@ -1,11 +1,10 @@
-import Poo from "../Entities/poo.js";
-
 export class CatBehaviour {
-    constructor(cat, rats, poos) {
+    constructor(cat, rats, onRatCaught, onPoop) {
         this.cat = cat;
         this.rats = rats;
         this.targetRat = null;
-        this.poos = poos;
+        this.onRatCaught = onRatCaught;
+        this.onPoop = onPoop;
 
         this.detectionRadius = 40; 
         this.catchDistance = 30;
@@ -33,10 +32,11 @@ export class CatBehaviour {
         this.cat.poopTimer.update(deltaTime);
 
         if (
+            this.cat.hasEaten &&
             this.cat.poopTimer.isFinished() &&
             this.cat.poopCount < this.cat.maxPoops
         ) {
-            this.poop();
+            this.onPoop(this.cat);
             this.cat.poopTimer.reset();
         }
     }
@@ -96,19 +96,7 @@ export class CatBehaviour {
         this.targetRat.isHunted = false;
         this.targetRat.huntedBy = null;
 
-        //Om råttan är smittad så blir katten också
-        if (this.targetRat.isAffected) {
-
-            this.cat.isAffected = true;
-        
-            if (this.cat.currentParasite === null) {
-                this.cat.currentParasite = this.targetRat.parasiteId;
-            } 
-            else if (this.cat.secondParasite === null) {
-                this.cat.secondParasite = this.targetRat.parasiteId;
-            }
-        }
-    
+        this.onRatCaught(this.cat, this.targetRat);
         this.targetRat = null;
         this.cat.poopTimer.reset(); //När den fångat börjar timern
     }
@@ -145,17 +133,6 @@ export class CatBehaviour {
         if (this.cat.y > canvas.height - 10) {
             this.cat.y = canvas.height - 10;
             this.directionY *= -1;
-        }
-    }
-
-    //Nu poopar den alltid efter 6 sekunder, om den måste ätit inann så ska vi lägga in en flagga
-    poop() {
-        if (this.cat.poopCount < this.cat.maxPoops) {
-            const poo = new Poo(this.cat.x, this.cat.y);
-    
-            this.poos.push(poo);
-    
-            this.cat.poopCount++;
         }
     }
 }

@@ -19,6 +19,7 @@ class Simulation {
         this.cats = [];
         this.parasites = [];
         this.poos = []; 
+        this.nextParasiteId = 4;
 
         this.behaviourstore = []; //array för att alla ska ha eget betende
         this.catBehaviours = []; //array katter 
@@ -32,7 +33,9 @@ class Simulation {
             );
 
             this.rats.push(rat);
-            const behaviour = new RatBehaviour();
+            const behaviour = new RatBehaviour(
+                (eatingRat, poo) => this.ratEatsPoo(eatingRat, poo)
+            );
             this.behaviourstore.push(behaviour);
         }
 
@@ -56,7 +59,12 @@ class Simulation {
             );
         
             this.cats.push(cat);
-            const behaviour = new CatBehaviour(cat, this.rats, this.poos);
+            const behaviour = new CatBehaviour(
+                cat,
+                this.rats,
+                (eatingCat, rat) => this.catEatsRat(eatingCat, rat),
+                eatingCat => this.catDefecates(eatingCat)
+            );
             this.catBehaviours.push(behaviour);
         }
   
@@ -68,68 +76,67 @@ class Simulation {
     }
 
     catEatsRat(cat, rat) {
-    if (!rat.parasite) {
-        return;
+        cat.hasEaten = true;
+        cat.poopCount = 0;
+
+        if (rat.parasite) {
+            if (!cat.currentParasite) {
+                cat.currentParasite = rat.parasite;
+                cat.parasiteInPoopCount = 0;
+            } else if (cat.currentParasite.id !== rat.parasite.id) {
+                cat.parasiteInPoopCount = 0;
+                cat.currentParasite = Evolution.reproduce(
+                    cat.currentParasite,
+                    rat.parasite,
+                    this.nextParasiteId
+                );
+
+                this.nextParasiteId++;
+            }
+        }
+        cat.isAffected = Boolean(cat.currentParasite);
     }
-
-    // Cat has no parasite yet
-    if (!cat.currentParasite) {
-        cat.currentParasite = rat.parasite;
-    }
-
-    // Cat already has a different parasite
-    else if (cat.currentParasite.id !== rat.parasite.id) {
-        const child = Evolution.reproduce(
-            cat.currentParasite,
-            rat.parasite,
-            this.nextParasiteId
-        );
-
-        this.nextParasiteId++;
-
-        cat.currentParasite = child;
-    }
-
-    // Remove eaten rat
-    this.rats = this.rats.filter(
-        currentRat => currentRat !== rat
-    );
-}
 
     catDefecates(cat) {
-    if (!cat.currentParasite) {
-        return;
+        if (cat.poopCount >= cat.maxPoops) {
+            return;
+        }
+
+        let parasiteInPoo = null;
+        if (cat.currentParasite) {
+            if (cat.parasiteInPoopCount < 4) {
+                parasiteInPoo = cat.currentParasite;
+                cat.parasiteInPoopCount++;
+
+                if (cat.parasiteInPoopCount === 4) {
+                    cat.currentParasite = null;
+                    cat.isAffected = false;
+                }
+            } else {
+                cat.currentParasite = null;
+                cat.isAffected = false;
+            }
+        }
+
+        const poo = new Poo(cat.x, cat.y, parasiteInPoo);
+        this.poos.push(poo);
+        cat.poopCount++;
+
+        return poo;
     }
 
-    if (cat.poopCount >= cat.maxPoops) {
-        return;
+    ratEatsPoo(rat, poo) {
+        const pooIndex = this.poos.indexOf(poo);
+        if (pooIndex === -1) {
+            return;
+        }
+
+        if (!rat.parasite && poo.parasite) {
+            rat.addParasite(poo.parasite);
+        }
+
+        this.poos.splice(pooIndex, 1);
     }
-
-    const poo = new Poo(
-        cat.currentParasite,
-        cat.x,
-        cat.y
-    );
-
-    this.poos.push(poo);
-
-    cat.poopCount++;
-}
-ratEatsPoo(rat, poo) {
-    if (rat.parasite) {
-        return;
-    }
-
-    if (!poo.parasite) {
-        return;
-    }
-
-    rat.addParasite(poo.parasite);
-
-    this.poos = this.poos.filter(
-        currentPoo => currentPoo !== poo
-    );
-}
     
     update(time) {
     

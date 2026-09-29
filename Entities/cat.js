@@ -16,6 +16,7 @@ export default class Cat {
 
         this.poopCount = 0;
         this.maxPoops = 4;
+        this.parasiteInPoopCount = 0;
         this.poopTimer = new Timer(6); 
     }
 

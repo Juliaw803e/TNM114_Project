@@ -1,5 +1,7 @@
 class RatBehaviour {
-    constructor(){
+    constructor(onPooEaten = () => {}) {
+        this.onPooEaten = onPooEaten;
+        this.targetPoo = null;
         this.directionX = Math.random() * 2 - 1;
         this.directionY = Math.random() * 2 - 1;
 
@@ -94,6 +96,7 @@ class RatBehaviour {
     
             if (distance < 20 && !rat.isEating) {
                 rat.isEating = true;
+                this.targetPoo = poo;
                 rat.eatingTimer.reset();
                 return;
             }
@@ -106,6 +109,10 @@ class RatBehaviour {
         if (rat.eatingTimer.isFinished()) {
             rat.isEating = false;
             rat.eatingTimer.reset();
+            if (this.targetPoo) {
+                this.onPooEaten(rat, this.targetPoo);
+                this.targetPoo = null;
+            }
         }
     }
 
