@@ -3,6 +3,8 @@ import RatBehaviour from "./Behaviour/ratbehaviour.js";
 import Cat from "./Entities/cat.js";
 import { CatBehaviour } from "./Behaviour/catbehaviour.js";
 import Parasite from "./Entities/parasite.js";
+import Poo from "./Entities/poo.js";
+import Evolution from "./Evolution/evolution.js";
 
 
 class Simulation {
@@ -16,7 +18,7 @@ class Simulation {
         this.rats = [];
         this.cats = [];
         this.parasites = [];
-        console.log(this.parasites);
+       this.poos = 4; 
 
         this.ratBehaviour = new RatBehaviour();
 
@@ -61,6 +63,70 @@ class Simulation {
         this.lastTime = performance.now();
         requestAnimationFrame((time) => this.update(time));
     }
+
+    catEatsRat(cat, rat) {
+    if (!rat.parasite) {
+        return;
+    }
+
+    // Cat has no parasite yet
+    if (!cat.currentParasite) {
+        cat.currentParasite = rat.parasite;
+    }
+
+    // Cat already has a different parasite
+    else if (cat.currentParasite.id !== rat.parasite.id) {
+        const child = Evolution.reproduce(
+            cat.currentParasite,
+            rat.parasite,
+            this.nextParasiteId
+        );
+
+        this.nextParasiteId++;
+
+        cat.currentParasite = child;
+    }
+
+    // Remove eaten rat
+    this.rats = this.rats.filter(
+        currentRat => currentRat !== rat
+    );
+
+    catDefecates(cat) {
+    if (!cat.currentParasite) {
+        return;
+    }
+
+    if (cat.poopCount >= cat.maxPoops) {
+        return;
+    }
+
+    const poo = new Poo(
+        cat.currentParasite,
+        cat.x,
+        cat.y
+    );
+
+    this.poos.push(poo);
+
+    cat.poopCount++;
+}
+ratEatsPoo(rat, poo) {
+    if (rat.parasite) {
+        return;
+    }
+
+    if (!poo.parasite) {
+        return;
+    }
+
+    rat.addParasite(poo.parasite);
+
+    this.poos = this.poos.filter(
+        currentPoo => currentPoo !== poo
+    );
+}
+}
     
     update(time) {
     
