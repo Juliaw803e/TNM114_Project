@@ -12,7 +12,7 @@ export default class Cat {
         this.isAffected = false;
 
         this.currentParasite = null;
-        this.secondParasite = null;
+        this.secondParasite = null; //behövs inte...
 
         this.poopCount = 0;
         this.maxPoops = 4;

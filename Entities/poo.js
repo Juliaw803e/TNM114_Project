@@ -4,7 +4,9 @@ class Poo {
         this.y = y;
 
         this.isAffected = true;
-        this.parasiteId = parasiteId;
+        //this.parasiteId = parasiteId;
+        //tydligen inte parasiteId som ska sparas utan själva parasiten, så vi kan kolla på dess egenskaper senare
+        this.parasite = parasite; 
     }
 
      //Rita en cirkel med råttans x och y.

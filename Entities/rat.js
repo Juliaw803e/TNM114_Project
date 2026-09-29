@@ -27,6 +27,7 @@ class Rat {
     addParasite(parasite) {
         this.isAffected = true;
         this.parasiteId = parasite.id;
+        this.parasite = parasite;
     }
 
     //Rita en cirkel med råttans x och y.
