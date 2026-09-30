@@ -8,7 +8,10 @@ import Evolution from "./Evolution/evolution.js";
 
 
 class Simulation {
-    constructor(canvas) {
+    constructor(canvas, numberOfRats = 10, numberOfCats = 2) {
+        this.isRunning = false;
+        this.isPaused = false;
+        //this.onMutation = onMutation;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
 
@@ -25,7 +28,7 @@ class Simulation {
         this.catBehaviours = []; //array katter 
 
         // Create rats ska komma från input istället för 10!!
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < numberOfRats; i++) {
             const rat = new Rat(
                 i,
                 Math.random() * this.canvas.width,
@@ -51,7 +54,7 @@ class Simulation {
 
         
         //Create cats: 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < numberOfCats; i++) {
             const cat = new Cat(
                 i, 
                 Math.random() * this.canvas.width,
@@ -70,11 +73,32 @@ class Simulation {
   
     }
 
-    start() {
-        this.lastTime = performance.now();
-        requestAnimationFrame((time) => this.update(time));
+     //GUI funktioner: ------- 
+    stop() {
+        this.isRunning = false;
+        this.isPaused = false;
     }
 
+    pause() {
+        this.isPaused = true;
+    }
+
+    resume() {
+        this.isPaused = false;
+        this.lastTime = performance.now();
+    }
+   
+   start() {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    this.isPaused = false; 
+    this.lastTime = performance.now();
+
+    requestAnimationFrame((time) => this.update(time));
+    }
+
+    //Evolutionsfunktioner: -------
     catEatsRat(cat, rat) {
         cat.hasEaten = true;
         cat.poopCount = 0;
@@ -96,6 +120,52 @@ class Simulation {
         }
         cat.isAffected = Boolean(cat.currentParasite);
     }
+
+    /*Test för att visa mutation i GUI: 
+    catEatsRat(cat, rat) {
+        cat.hasEaten = true;
+        cat.poopCount = 0;
+    
+        if (rat.parasite) {
+    
+            if (!cat.currentParasite) {
+    
+                cat.currentParasite = rat.parasite;
+                cat.parasiteInPoopCount = 0;
+    
+            } else if (cat.currentParasite.id !== rat.parasite.id) {
+    
+                cat.parasiteInPoopCount = 0;
+    
+                const parent1 = cat.currentParasite;
+                const parent2 = rat.parasite;
+    
+                const newParasite = Evolution.reproduce(
+                    parent1,
+                    parent2,
+                    this.nextParasiteId
+                );
+    
+                cat.currentParasite = newParasite;
+    
+                if (this.onMutation) {
+                    this.onMutation({
+                        id: newParasite.id,
+                        parent1: parent1.id,
+                        parent2: parent2.id,
+                        generation: newParasite.generation,
+                        mutation: "..."
+                    });
+                }
+    
+                this.nextParasiteId++;
+            }
+        }
+    
+        cat.isAffected = Boolean(cat.currentParasite);
+    }*/
+    //Här slutar test av catseatrat
+
 
     catDefecates(cat) {
         if (cat.poopCount >= cat.maxPoops) {
@@ -139,7 +209,15 @@ class Simulation {
     }
     
     update(time) {
-    
+        if (!this.isRunning) return;
+
+        //Pause nuvarande simulation: 
+        if (this.isPaused) {
+            this.lastTime = time;
+            requestAnimationFrame((time) => this.update(time));
+            return;
+        }
+
         const deltaTime = (time - this.lastTime) / 1000;
         this.lastTime = time;
     
