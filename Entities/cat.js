@@ -7,7 +7,7 @@ export default class Cat {
         this.y = y;
 
         this.hunger = 0;
-        this.speed = 100;
+        this.speed = 200;
 
         this.isAffected = false;
 

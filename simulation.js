@@ -8,10 +8,10 @@ import Evolution from "./Evolution/evolution.js";
 
 
 class Simulation {
-    constructor(canvas, numberOfRats = 10, numberOfCats = 2) {
+    constructor(canvas, numberOfRats = 10, numberOfCats = 2, onMutation) {
         this.isRunning = false;
         this.isPaused = false;
-        //this.onMutation = onMutation;
+        this.onMutation = onMutation; //För info mutation
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
 
@@ -99,7 +99,7 @@ class Simulation {
     }
 
     //Evolutionsfunktioner: -------
-    catEatsRat(cat, rat) {
+    /*catEatsRat(cat, rat) {
         cat.hasEaten = true;
         cat.poopCount = 0;
 
@@ -119,9 +119,9 @@ class Simulation {
             }
         }
         cat.isAffected = Boolean(cat.currentParasite);
-    }
+    }*/
 
-    /*Test för att visa mutation i GUI: 
+    //Test för att visa mutation i GUI: 
     catEatsRat(cat, rat) {
         cat.hasEaten = true;
         cat.poopCount = 0;
@@ -134,36 +134,43 @@ class Simulation {
                 cat.parasiteInPoopCount = 0;
     
             } else if (cat.currentParasite.id !== rat.parasite.id) {
-    
+                console.log("SECOND PARASITE EATEN");
+                console.log("Parent 1:", cat.currentParasite.id);
+                console.log("Parent 2:", rat.parasite.id);
+
                 cat.parasiteInPoopCount = 0;
-    
+            
                 const parent1 = cat.currentParasite;
                 const parent2 = rat.parasite;
-    
+            
                 const newParasite = Evolution.reproduce(
                     parent1,
                     parent2,
                     this.nextParasiteId
                 );
-    
+
+                console.log("NEW PARASITE:", newParasite);
+                console.log("MUTATIONS:", newParasite.mutations);
+            
                 cat.currentParasite = newParasite;
-    
+            
                 if (this.onMutation) {
+                    console.log("SENDING TO GUI");
                     this.onMutation({
                         id: newParasite.id,
                         parent1: parent1.id,
                         parent2: parent2.id,
                         generation: newParasite.generation,
-                        mutation: "..."
+                        mutations: newParasite.mutations
                     });
                 }
-    
+            
                 this.nextParasiteId++;
             }
         }
     
         cat.isAffected = Boolean(cat.currentParasite);
-    }*/
+    }
     //Här slutar test av catseatrat
 
 

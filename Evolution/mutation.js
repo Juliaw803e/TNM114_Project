@@ -1,24 +1,60 @@
 export default class Mutation {
-    //5% mutation rate and 10% mutation amount by default
-    static mutate(parasite, mutationRate = 0.05, mutationAmount = 0.1) {
+    //5% mutation rate and 10% mutation amount by default OBS ändra tillbaka till 0.05
+    static mutate(parasite, mutationRate = 1.0, mutationAmount = 0.1) {
+        const mutations = [];
 
         if (Math.random() < mutationRate) {
+            const oldValue = parasite.aggressiveness;
             parasite.aggressiveness += Mutation.randomChange(mutationAmount);
+            
+            mutations.push({
+                gene: "aggressiveness",
+                oldValue: oldValue,
+                newValue: parasite.aggressiveness
+            });
         }
 
         if (Math.random() < mutationRate) {
+            const oldValue = parasite.transmission;
+
             parasite.transmission += Mutation.randomChange(mutationAmount);
+
+            mutations.push({
+                gene: "transmission",
+                oldValue: oldValue,
+                newValue: parasite.transmission
+            });
         }
 
         if (Math.random() < mutationRate) {
+            const oldValue = parasite.manipulation;
             parasite.manipulation += Mutation.randomChange(mutationAmount);
+
+            mutations.push({
+                gene: "manipulation",
+                oldValue: oldValue, 
+                newValue: parasite.manipulation
+            });
         }
 
         if (Math.random() < mutationRate) {
+            const oldValue = parasite.survivalTime;
             parasite.survivalTime += Mutation.randomChange(mutationAmount);
+
+            mutations.push({
+                gene: "survivalTime",
+                oldValue: oldValue,
+                newValue: parasite.survivalTime
+            });
         }
 
         Mutation.keepGenesInRange(parasite);
+
+         // Save actual final values
+         for (const mutation of mutations) {
+            mutation.newValue = parasite[mutation.gene];
+        }
+        parasite.mutations = mutations;
 
         return parasite;
     }

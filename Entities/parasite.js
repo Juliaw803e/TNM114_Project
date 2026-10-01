@@ -7,6 +7,10 @@ export default class Parasite {
         this.manipulation = Math.random();
         this.survivalTime = Math.random();
 
+        // Evolution
+        this.generation = 0;
+        this.mutations = [];
+
         //variabler som inte är gener 
         this.age = 0;
         this.successfulTransmissions = 0;

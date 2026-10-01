@@ -99,12 +99,30 @@ export default class GUI {
 
     //Visa 
     showMutation(mutationInfo) {
+        let mutationText = "";
+    
+        if (mutationInfo.mutations.length === 0) {
+            mutationText = "No mutation occurred";
+        } else {
+            for (const mutation of mutationInfo.mutations) {
+                mutationText += `
+                    <p>
+                        ${mutation.gene}:
+                        ${mutation.oldValue.toFixed(2)}
+                        →
+                        ${mutation.newValue.toFixed(2)}
+                    </p>
+                `;
+            }
+        }
+    
         this.evolutionInfo.innerHTML = `
             <h3>Latest Evolution</h3>
             <p>New parasite: #${mutationInfo.id}</p>
             <p>Parents: #${mutationInfo.parent1} + #${mutationInfo.parent2}</p>
             <p>Generation: ${mutationInfo.generation}</p>
-            <p>Mutation: ${mutationInfo.mutation}</p>
+            <strong>Mutations:</strong>
+            ${mutationText}
         `;
     }
 }

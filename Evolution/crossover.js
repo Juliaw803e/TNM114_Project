@@ -25,6 +25,10 @@ export default class Crossover {
             Math.random() < 0.5
                 ? parentA.survivalTime
                 : parentB.survivalTime;
+                
+         // Child belongs to the next generation
+         child.generation =
+         Math.max(parentA.generation, parentB.generation) + 1;
 
         return child;
     }
