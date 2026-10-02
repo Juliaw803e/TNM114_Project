@@ -67,6 +67,11 @@ export default class GUI {
 
         startStopButton.addEventListener("click", () => {
             if (!this.simulation) {
+                 // Reset evolution info
+                this.evolutionInfo.innerHTML = `
+                    <h3>Latest Evolution</h3>
+                    <p>Waiting for first mutation...</p>
+                `;
                 const numberOfCats = Number(catInput.value);
                 const numberOfRats = Number(ratInput.value);
                 const numberOfParasites = Number(parasiteInput.value);
@@ -120,7 +125,8 @@ export default class GUI {
         this.evolutionInfo = evolutionInfo; //spara denna så evolution kan uppdatera
         gui.appendChild(evolutionInfo);
     
-        document.body.appendChild(gui);
+       // document.body.appendChild(gui);
+        document.getElementById("simulation-container").appendChild(gui);
     }
 
     //Visa 
