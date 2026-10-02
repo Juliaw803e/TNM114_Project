@@ -15,6 +15,12 @@ class RatBehaviour {
             return;
         }
 
+        rat.spriteFlipTimer += deltaTime;
+        if (rat.spriteFlipTimer >= 1) {
+            rat.spriteFlipTimer %= 1;
+            rat.spriteFlipped = !rat.spriteFlipped;
+        }
+
         if (rat.parasite) { //om råttan har en parasit så kommer den dö mellan 60 och 10 sek beroende på aggressivitet. 
             const aggressiveness = Math.max(
                 0,
@@ -61,6 +67,9 @@ class RatBehaviour {
         }
 
         // Flytta råttan
+        if (this.directionX !== 0 || this.directionY !== 0) {
+            rat.spriteAngle = Math.atan2(this.directionY, this.directionX) + Math.PI / 2;
+        }
         rat.x += this.directionX * rat.speed * deltaTime;
         rat.y += this.directionY * rat.speed * deltaTime;
 
@@ -86,7 +95,6 @@ class RatBehaviour {
         if (distance > 0) {
             dx /= distance;
             dy /= distance;
-    
             // Tvinga råttan bort från kanten
             if (rat.x <= 10 && dx < 0) {
                 dx = 0;
@@ -102,6 +110,10 @@ class RatBehaviour {
     
             if (rat.y >= canvas.height - 10 && dy > 0) {
                 dy = 0;
+            }
+
+            if (dx !== 0 || dy !== 0) {
+                rat.spriteAngle = Math.atan2(dy, dx) + Math.PI / 2;
             }
     
             rat.x += dx * fleeSpeed * deltaTime;

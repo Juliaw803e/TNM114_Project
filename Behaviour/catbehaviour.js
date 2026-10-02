@@ -14,6 +14,12 @@ export class CatBehaviour {
     }
 
     update(deltaTime, canvas) {
+        this.cat.spriteFlipTimer += deltaTime;
+        if (this.cat.spriteFlipTimer >= 1) {
+            this.cat.spriteFlipTimer %= 1;
+            this.cat.spriteFlipped = !this.cat.spriteFlipped;
+        }
+
         //Har en råtta den jagar?
         if (this.targetRat) {
             this.chase(deltaTime, canvas);
@@ -86,6 +92,7 @@ export class CatBehaviour {
         }
 
         if (distance > 0) {
+            this.cat.spriteAngle = Math.atan2(dy, dx) + Math.PI / 2;
             this.cat.x += (dx / distance) * this.cat.speed * deltaTime;
             this.cat.y += (dy / distance) * this.cat.speed * deltaTime;
         }
@@ -113,6 +120,9 @@ export class CatBehaviour {
     }
 
     move(deltaTime, canvas) {
+        if (this.directionX !== 0 || this.directionY !== 0) {
+            this.cat.spriteAngle = Math.atan2(this.directionY, this.directionX) + Math.PI / 2;
+        }
         this.cat.x += this.directionX * this.cat.speed * deltaTime;
         this.cat.y += this.directionY * this.cat.speed * deltaTime;
 
