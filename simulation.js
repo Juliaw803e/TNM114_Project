@@ -8,7 +8,7 @@ import Evolution from "./Evolution/evolution.js";
 
 
 class Simulation {
-    constructor(canvas, numberOfRats = 10, numberOfCats = 2, onMutation) {
+    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onMutation) {
         this.isRunning = false;
         this.isPaused = false;
         this.onMutation = onMutation; //För info mutation
@@ -22,7 +22,7 @@ class Simulation {
         this.cats = [];
         this.parasites = [];
         this.poos = []; 
-        this.nextParasiteId = 4;
+        this.nextParasiteId = numberOfParasites + 1;
 
         this.behaviourstore = []; //array för att alla ska ha eget betende
         this.catBehaviours = []; //array katter 
@@ -43,14 +43,13 @@ class Simulation {
         }
 
         //Add initila parasites to random rats: 
-        // Create initial parasites
-        const parasite1 = new Parasite(1);
-        const parasite2 = new Parasite(2);
-        const parasite3 = new Parasite(3);
-
-        this.rats[0].addParasite(parasite1);
-        this.rats[1].addParasite(parasite2);
-        this.rats[2].addParasite(parasite3);
+        for (let i = 0; i < numberOfParasites; i++) {
+            const parasite = new Parasite(i + 1);
+        
+            this.parasites.push(parasite);
+        
+            this.rats[i].addParasite(parasite);
+        }
 
         
         //Create cats: 
@@ -99,28 +98,6 @@ class Simulation {
     }
 
     //Evolutionsfunktioner: -------
-    /*catEatsRat(cat, rat) {
-        cat.hasEaten = true;
-        cat.poopCount = 0;
-
-        if (rat.parasite) {
-            if (!cat.currentParasite) {
-                cat.currentParasite = rat.parasite;
-                cat.parasiteInPoopCount = 0;
-            } else if (cat.currentParasite.id !== rat.parasite.id) {
-                cat.parasiteInPoopCount = 0;
-                cat.currentParasite = Evolution.reproduce(
-                    cat.currentParasite,
-                    rat.parasite,
-                    this.nextParasiteId
-                );
-
-                this.nextParasiteId++;
-            }
-        }
-        cat.isAffected = Boolean(cat.currentParasite);
-    }*/
-
     //Test för att visa mutation i GUI: 
     catEatsRat(cat, rat) {
         cat.hasEaten = true;

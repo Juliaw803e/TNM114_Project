@@ -23,7 +23,6 @@ export default class GUI {
         catLabel.appendChild(catInput);
         gui.appendChild(catLabel);
     
-        
         //Antal råttor: 
         const ratLabel = document.createElement("label");
         ratLabel.textContent = "Antal råttor: ";
@@ -36,6 +35,30 @@ export default class GUI {
         ratLabel.appendChild(ratInput);
         gui.appendChild(ratLabel);
 
+        //Antal parasiter: 
+        const parasiteInput = document.createElement("input");
+        parasiteInput.type = "number";
+        parasiteInput.min = "1";
+        parasiteInput.value = "3";
+
+        // Sätt max från början
+        parasiteInput.max = ratInput.value;
+
+        // Uppdatera max om antal råttor ändras
+        ratInput.addEventListener("input", () => {
+            parasiteInput.max = ratInput.value;
+
+            if (Number(parasiteInput.value) > Number(ratInput.value)) {
+                parasiteInput.value = ratInput.value;
+            }
+        });
+
+        const parasiteLabel = document.createElement("label");
+        parasiteLabel.textContent = "Number of parasites:";
+
+        gui.appendChild(parasiteLabel);
+        gui.appendChild(parasiteInput);
+
         //Startstopknapp och pauseknapp: 
         const startStopButton = document.createElement("button");
         startStopButton.textContent = "Start";
@@ -46,11 +69,14 @@ export default class GUI {
             if (!this.simulation) {
                 const numberOfCats = Number(catInput.value);
                 const numberOfRats = Number(ratInput.value);
+                const numberOfParasites = Number(parasiteInput.value);
+
         
                 this.simulation = new Simulation(
                     this.canvas,
                     numberOfRats,
                     numberOfCats,
+                    numberOfParasites,
                     (mutationInfo) => this.showMutation(mutationInfo) //callback till GUI
                 );
         
