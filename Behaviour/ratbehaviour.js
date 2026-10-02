@@ -11,6 +11,33 @@ class RatBehaviour {
 
     //deltaTime som andra parameter
     update(rat, deltaTime, canvas, poos) {
+        if (rat.isDead || rat.isCaught) {
+            return;
+        }
+
+        rat.spriteFlipTimer += deltaTime;
+        if (rat.spriteFlipTimer >= 1) {
+            rat.spriteFlipTimer %= 1;
+            rat.spriteFlipped = !rat.spriteFlipped;
+        }
+
+        if (rat.parasite) { //om råttan har en parasit så kommer den dö mellan 60 och 10 sek beroende på aggressivitet. 
+            const aggressiveness = Math.max(
+                0,
+                Math.min(1, rat.parasite.aggressiveness)
+            );
+            const deathTime = 60 - aggressiveness * 50; //mellan 60 och 10 sek 
+
+            rat.infectionTime += deltaTime; //uppdatera infectionTime
+            if (rat.infectionTime >= deathTime) { 
+                rat.isDead = true;
+                rat.isHunted = false;
+                rat.huntedBy = null;
+                rat.isEating = false;
+                return;
+            }
+        }
+
         if (rat.isHunted) {
             this.flee(rat, deltaTime, canvas);
         } 
@@ -40,6 +67,9 @@ class RatBehaviour {
         }
 
         // Flytta råttan
+        if (this.directionX !== 0 || this.directionY !== 0) {
+            rat.spriteAngle = Math.atan2(this.directionY, this.directionX) + Math.PI / 2;
+        }
         rat.x += this.directionX * rat.speed * deltaTime;
         rat.y += this.directionY * rat.speed * deltaTime;
 
@@ -58,11 +88,13 @@ class RatBehaviour {
         let dy = rat.y - cat.y;
     
         const distance = Math.sqrt(dx * dx + dy * dy);
+        const manipulation = rat.parasite?.manipulation ?? 0; // manipulation om den har parasit 
+        const effectiveFear = rat.fear * (1 - manipulation); // Justera rädslan baserat på manipulationen
+        const fleeSpeed = rat.speed * (1 + effectiveFear); // Justera hastigheten baserat på rädslan
     
         if (distance > 0) {
             dx /= distance;
             dy /= distance;
-    
             // Tvinga råttan bort från kanten
             if (rat.x <= 10 && dx < 0) {
                 dx = 0;
@@ -79,9 +111,13 @@ class RatBehaviour {
             if (rat.y >= canvas.height - 10 && dy > 0) {
                 dy = 0;
             }
+
+            if (dx !== 0 || dy !== 0) {
+                rat.spriteAngle = Math.atan2(dy, dx) + Math.PI / 2;
+            }
     
-            rat.x += dx * rat.speed * 1.5 * deltaTime;
-            rat.y += dy * rat.speed * 1.5 * deltaTime;
+            rat.x += dx * fleeSpeed * deltaTime;
+            rat.y += dy * fleeSpeed * deltaTime;
         }
     
         this.handleEdges(rat, canvas);

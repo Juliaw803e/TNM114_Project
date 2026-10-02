@@ -185,8 +185,13 @@ class Simulation {
             return;
         }
 
-        if (!rat.parasite && poo.parasite) {
+        if (
+            !rat.parasite &&
+            poo.parasite &&
+            Math.random() < poo.parasite.transmission //transmission probability check 
+        ) {
             rat.addParasite(poo.parasite);
+            poo.parasite.successfulTransmissions++;
         }
 
         this.poos.splice(pooIndex, 1);
@@ -211,12 +216,18 @@ class Simulation {
             this.canvas.width,
             this.canvas.height
         );
+
+        for (let i = this.poos.length - 1; i >= 0; i--) {
+            if (!this.poos[i].update(deltaTime)) {
+                this.poos.splice(i, 1);
+            }
+        }
         
         //Update and draw rats
         for (let i = 0; i < this.rats.length; i++) {
             this.behaviourstore[i].update(this.rats[i], deltaTime, this.canvas, this.poos);
             
-            if (!this.rats[i].isCaught) {
+            if (!this.rats[i].isCaught && !this.rats[i].isDead) {
                 this.rats[i].draw(this.ctx);
             }
         }
