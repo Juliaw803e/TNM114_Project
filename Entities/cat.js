@@ -14,6 +14,7 @@ export default class Cat {
 
         this.hunger = 0;
         this.speed = 100;
+        this.isEating = false; 
         this.spriteAngle = 0;
         this.spriteFlipTimer = 0;
         this.spriteFlipped = false;

@@ -1,3 +1,4 @@
+import Timer from "../timer.js";
 export class CatBehaviour {
     constructor(cat, rats, onRatCaught, onPoop) {
         this.cat = cat;
@@ -9,11 +10,29 @@ export class CatBehaviour {
         this.detectionRadius = 40; 
         this.catchDistance = 30;
 
+        this.eatingTimer = new Timer(1); // stannar i 1.5 sekunder
+
         this.directionX = Math.random() * 2 - 1;
         this.directionY = Math.random() * 2 - 1;
     }
 
     update(deltaTime, canvas) {
+        //Stanna när den fångat råtta och äta
+        if (this.cat.isEating) {
+            this.eatingTimer.update(deltaTime);
+    
+            if (this.eatingTimer.isFinished()) {
+                this.cat.isEating = false;
+                this.eatingTimer.reset();
+    
+                // Nu räknas råttan som uppäten
+                this.onRatCaught(this.cat, this.cat.eatingRat);
+                this.cat.eatingRat = null;
+            }
+    
+            return;
+        }
+
         this.cat.spriteFlipTimer += deltaTime;
         if (this.cat.spriteFlipTimer >= 1) {
             this.cat.spriteFlipTimer %= 1;
@@ -101,17 +120,22 @@ export class CatBehaviour {
     }
 
     catchRat() {
-         // Vad som händer med råttan efter att katten fångat den
-        // kan vi bestämma senare.
-        this.targetRat.isCaught = true;
-
-        this.targetRat.isHunted = false;
-        this.targetRat.huntedBy = null;
-
-        this.onRatCaught(this.cat, this.targetRat);
+        const rat = this.targetRat;
+    
+        rat.isCaught = true;
+        rat.isHunted = false;
+        rat.huntedBy = null;
+    
+        // Katten stannar och "äter"
+        this.cat.isEating = true;
+        this.cat.eatingRat = rat;
+    
+        // Starta ät-timern
+        this.eatingTimer.reset();
+    
         this.targetRat = null;
-        this.cat.poopTimer.reset(); //När den fångat börjar timern
     }
+
     loseTarget() {
         this.targetRat.isHunted = false;
         this.targetRat.huntedBy = null;

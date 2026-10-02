@@ -11,6 +11,11 @@ class RatBehaviour {
 
     //deltaTime som andra parameter
     update(rat, deltaTime, canvas, poos) {
+        //stanna om den fångats av katten
+        if (rat.isCaught) {
+            return;
+        }
+
         if (rat.isDead || rat.isCaught) {
             return;
         }
