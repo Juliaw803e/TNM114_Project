@@ -4,6 +4,9 @@ const ratSprite = new Image();
 ratSprite.src = new URL("../img/rat.png", import.meta.url).href;
 const infectedRatSprite = new Image();
 infectedRatSprite.src = new URL("../img/rat_p.png", import.meta.url).href;
+const dyingRatSprite = new Image();
+dyingRatSprite.src = new URL("../img/rat_p2.png", import.meta.url).href;
+
 
 class Rat {
     constructor(id, x, y) {
@@ -25,6 +28,7 @@ class Rat {
         this.parasiteId = null;
         this.parasite = null;
         this.infectionTime = 0;
+        this.deathTime = null;
         this.isDead = false;
 
         this.isHunted = false;
@@ -44,12 +48,24 @@ class Rat {
 
     //Rita en cirkel med råttans x och y.
     draw(ctx) {
-        const sprite = this.isAffected ? infectedRatSprite : ratSprite;
+        let sprite = this.isAffected ? infectedRatSprite : ratSprite;
+        const timeUntilDeath = this.deathTime - this.infectionTime;
+        const shouldShowDyingSprite =
+            this.isAffected &&
+            this.deathTime !== null &&
+            timeUntilDeath > 0 &&
+            timeUntilDeath <= 2 &&
+            Math.floor(this.infectionTime / 0.25) % 2 === 0;
+
+        if (shouldShowDyingSprite) {
+            sprite = dyingRatSprite;
+        }
+
         if (!sprite.complete || sprite.naturalWidth === 0) {
             return;
         }
 
-        const height = 30;
+        const height = 32;
         const width = height * sprite.naturalWidth / sprite.naturalHeight;
 
         ctx.save();
