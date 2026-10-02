@@ -15,6 +15,9 @@ class Rat {
 
         this.isAffected = false;
         this.parasiteId = null;
+        this.parasite = null;
+        this.infectionTime = 0;
+        this.isDead = false;
 
         this.isHunted = false;
         this.huntedBy = null; 
@@ -28,6 +31,7 @@ class Rat {
         this.isAffected = true;
         this.parasiteId = parasite.id;
         this.parasite = parasite;
+        this.infectionTime = 0;
     }
 
     //Rita en cirkel med råttans x och y.

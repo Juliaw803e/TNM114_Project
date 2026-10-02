@@ -49,7 +49,7 @@ export class CatBehaviour {
 
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (!rat.isCaught && distance < this.detectionRadius) {
+            if (!rat.isCaught && !rat.isDead && distance < this.detectionRadius) {
                 this.targetRat = rat;
                 return;
             }
@@ -63,6 +63,11 @@ export class CatBehaviour {
 
     chase(deltaTime, canvas) {
         const rat = this.targetRat;
+
+        if (rat.isDead || rat.isCaught) {
+            this.loseTarget();
+            return;
+        }
 
         const dx = rat.x - this.cat.x;
         const dy = rat.y - this.cat.y;
