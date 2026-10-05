@@ -36,7 +36,7 @@ export default class Cat {
             return;
         }
 
-        const height = 42;
+        const height = 64;
         const width = height * sprite.naturalWidth / sprite.naturalHeight;
 
         ctx.save();

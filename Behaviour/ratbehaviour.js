@@ -32,6 +32,7 @@ class RatBehaviour {
                 Math.min(1, rat.parasite.aggressiveness)
             );
             const deathTime = 60 - aggressiveness * 50; //mellan 60 och 10 sek 
+            rat.deathTime = deathTime;
 
             rat.infectionTime += deltaTime; //uppdatera infectionTime
             if (rat.infectionTime >= deathTime) { 

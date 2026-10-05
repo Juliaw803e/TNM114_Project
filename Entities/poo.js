@@ -1,3 +1,9 @@
+const pooSprite = new Image();
+pooSprite.src = new URL("../img/poo.png", import.meta.url).href;
+const pooInfectedSprite = new Image();
+pooInfectedSprite.src = new URL("../img/poo_p.png", import.meta.url).href;
+
+
 class Poo {
     constructor(x, y, parasite = null) {
         this.x = x;
@@ -17,11 +23,20 @@ class Poo {
     }
 
      //Rita en cirkel med råttans x och y.
-     draw(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = "brown";
-        ctx.fill();
+      draw(ctx) {
+        const sprite = this.isAffected ? pooInfectedSprite : pooSprite;
+        if (!sprite.complete || sprite.naturalWidth === 0) {
+            return;
+        }
+
+        const size = 24;
+        ctx.drawImage(
+            sprite,
+            this.x - size / 2,
+            this.y - size / 2,
+            size,
+            size
+        );
     }
 }
 export default Poo;
