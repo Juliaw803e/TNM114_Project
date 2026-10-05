@@ -13,7 +13,7 @@ export default class Cat {
         this.y = y;
 
         this.hunger = 0;
-        this.speed = 100;
+        this.speed = 70;
         this.isEating = false; 
         this.spriteAngle = 0;
         this.spriteFlipTimer = 0;

@@ -18,8 +18,8 @@ class Rat {
         //this.hunger = 0;
         //this.hungerTimer = new Timer(5);
 
-        this.speed = 70;
-        this.fear = 0.5;
+        this.speed = 75;
+        this.fear = 0.2;
         this.spriteAngle = 0;
         this.spriteFlipTimer = 0;
         this.spriteFlipped = false;
