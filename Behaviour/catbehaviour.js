@@ -10,7 +10,7 @@ export class CatBehaviour {
         this.detectionRadius = 40; 
         this.catchDistance = 30;
 
-        this.eatingTimer = new Timer(1); // stannar i 1.5 sekunder
+        this.eatingTimer = new Timer(1); // stannar i 1 sek
 
         this.directionX = Math.random() * 2 - 1;
         this.directionY = Math.random() * 2 - 1;

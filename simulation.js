@@ -4,16 +4,22 @@ import Cat from "./Entities/cat.js";
 import { CatBehaviour } from "./Behaviour/catbehaviour.js";
 import Parasite from "./Entities/parasite.js";
 import Poo from "./Entities/poo.js";
-import Evolution from "./Evolution/evolution.js";
 
+import Evolution from "./Evolution/evolution.js";
+import Fitness from "./Evolution/fitness.js";
+import Selection from "./Evolution/selection.js";
+import Timer from "../timer.js";
 
 class Simulation {
-    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onMutation) {
+    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3,  onEvolution) {
         this.isRunning = false;
         this.isPaused = false;
-        this.onMutation = onMutation; //För info mutation
+        this. onEvolution =  onEvolution; //För info om generationsrunda
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
+
+        this.generation = 0;
+        this.reproductionTimer = new Timer(30); //Global timer for when selection happens
 
         this.canvas.width = 800;
         this.canvas.height = 600;
@@ -98,8 +104,109 @@ class Simulation {
     }
 
     //Evolutionsfunktioner: -------
-    //Test för att visa mutation i GUI: 
+    //Sparar bara vilka parasiter som katten ätit
     catEatsRat(cat, rat) {
+        cat.hasEaten = true;
+        cat.poopCount = 0;
+    
+        if (!rat.parasite) {
+            return;
+        }
+    
+        // Spara parasiten som katten har ätit
+        if (!cat.eatenParasites) {
+            cat.eatenParasites = [];
+        }
+    
+        cat.eatenParasites.push(rat.parasite);
+    
+        console.log(
+            `Cat ${cat.id} ate parasite ${rat.parasite.id}`
+        );
+    
+        cat.isAffected = true;
+    }
+
+    //Evolution där alla katter testas samtidigt: 
+    runEvolution() {
+        console.log("EVOLUTION ROUND");
+    
+        const evolutionResults = [];
+    
+        // Gå igenom alla katter
+        for (const cat of this.cats) {
+    
+            // Om katten inte har tillräckligt många parasiter
+            if (!cat.eatenParasites || cat.eatenParasites.length < 2) {
+
+                evolutionResults.push({
+                    catId: cat.id,
+                    reproduced: false
+                });
+            
+                cat.eatenParasites = [];
+            
+                continue;
+            }
+    
+            // 1. Beräkna fitness för alla parasiter katten har ätit
+            const fitnessValues = Fitness.calculate(
+                cat.eatenParasites
+            );
+    
+            // 2. Välj de två bästa parasiterna
+            const [parent1, parent2] = Selection.select(
+                fitnessValues
+            );
+    
+            console.log("Parent 1:", parent1.id);
+            console.log("Parent 2:", parent2.id);
+    
+            // 3. Skapa en ny parasit från de två föräldrarna
+            const newParasite = Evolution.reproduce(
+                parent1,
+                parent2,
+                this.nextParasiteId
+            );
+
+            cat.currentParasite = newParasite;//for the baby
+
+            console.log("NEW PARASITE:", newParasite);
+            console.log("MUTATIONS:", newParasite.mutations);
+    
+            // 4. Spara resultatet från denna katt
+            evolutionResults.push({
+                catId: cat.id,
+                reproduced: true,
+                parasiteId: newParasite.id,
+                parent1: parent1.id,
+                parent2: parent2.id,
+                mutations: newParasite.mutations
+            });
+    
+            // Nästa parasit får ett nytt ID
+            this.nextParasiteId++;
+    
+            // 5. Töm kattens lista inför nästa evolution
+            cat.eatenParasites = [];
+        }
+    
+        // 6. Öka den globala generationen
+        this.generation++;
+    
+        // 7. Skicka hela evolutionens resultat till GUI
+        if (this.onEvolution) {
+            this.onEvolution({
+                generation: this.generation,
+                results: evolutionResults
+            });
+        }
+    
+        // 8. Starta om den globala evolutionstimern
+        this.reproductionTimer.reset();
+    }
+
+   /* catEatsRat(cat, rat) {
         cat.hasEaten = true;
         cat.poopCount = 0;
     
@@ -148,7 +255,7 @@ class Simulation {
     
         cat.isAffected = Boolean(cat.currentParasite);
     }
-    //Här slutar test av catseatrat
+    //Här slutar test av catseatrat*/
 
 
     catDefecates(cat) {
@@ -209,7 +316,13 @@ class Simulation {
 
         const deltaTime = (time - this.lastTime) / 1000;
         this.lastTime = time;
-    
+
+        //global reproduction timer: 
+        this.reproductionTimer.update(deltaTime);
+        if (this.reproductionTimer.isFinished()) {
+            this.runEvolution();
+        }
+       
         this.ctx.clearRect(
             0,
             0,

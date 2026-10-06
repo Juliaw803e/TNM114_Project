@@ -70,7 +70,7 @@ export default class GUI {
                  // Reset evolution info
                 this.evolutionInfo.innerHTML = `
                     <h3>Latest Evolution</h3>
-                    <p>Waiting for first mutation...</p>
+                    <p>Waiting for first evolution...</p>
                 `;
                 const numberOfCats = Number(catInput.value);
                 const numberOfRats = Number(ratInput.value);
@@ -82,7 +82,7 @@ export default class GUI {
                     numberOfRats,
                     numberOfCats,
                     numberOfParasites,
-                    (mutationInfo) => this.showMutation(mutationInfo) //callback till GUI
+                    (evolutionInfo) => this.showEvolution(evolutionInfo)//callback till GUI
                 );
         
                 this.simulation.start();
@@ -113,13 +113,26 @@ export default class GUI {
         gui.appendChild(startStopButton);
         gui.appendChild(pauseButton);
 
+        //Global timer och generation: -----------------------
+        const evolutionStatus = document.createElement("div");
+        evolutionStatus.id = "evolution-status";
+
+        evolutionStatus.innerHTML = `
+            <h3>Evolution</h3>
+            <p>Next evolution: --</p>
+            <p>Generation: 0</p>
+        `;
+
+        this.evolutionStatus = evolutionStatus;
+        gui.appendChild(evolutionStatus);
+
         //Informationsruta om mutationer:---------------
         const evolutionInfo = document.createElement("div");
         evolutionInfo.id = "evolution-info";
 
         evolutionInfo.innerHTML = `
             <h3>Latest Evolution</h3>
-            <p>Waiting for first mutation...</p>
+            <p>Waiting for first evolution...</p>
         `;
 
         this.evolutionInfo = evolutionInfo; //spara denna så evolution kan uppdatera
@@ -127,10 +140,97 @@ export default class GUI {
     
        // document.body.appendChild(gui);
         document.getElementById("simulation-container").appendChild(gui);
+        this.updateGUI();//for global timer
     }
 
-    //Visa 
-    showMutation(mutationInfo) {
+    //Update global evolution status:
+    updateEvolutionStatus() {
+        if (!this.simulation) {
+            return;
+        }
+    
+        const timeLeft = this.simulation.reproductionTimer.getTimeLeft();
+    
+        this.evolutionStatus.innerHTML = `
+            <h3>Evolution</h3>
+            <p>Next evolution: ${timeLeft.toFixed(1)} s</p>
+            <p>Generation: ${this.simulation.generation}</p>
+        `;
+    }
+
+    updateGUI() {
+        if (this.simulation) {
+            this.updateEvolutionStatus();
+        }
+    
+        requestAnimationFrame(() => this.updateGUI());
+    }
+
+    //Anpassad för den globala: 
+    showEvolution(evolutionInfo) {
+        let evolutionText = "";
+    
+        for (const result of evolutionInfo.results) {
+    
+            evolutionText += `
+                <div>
+                    <p><strong>Cat ${result.catId}</strong></p>
+            `;
+    
+            if (!result.reproduced) {
+    
+                evolutionText += `
+                    <p>Not enough parasites for reproduction</p>
+                `;
+    
+            } else {
+    
+                evolutionText += `
+                    <p>New parasite: #${result.parasiteId}</p>
+                    <p>
+                        Parents:
+                        #${result.parent1} + #${result.parent2}
+                    </p>
+    
+                    <strong>Mutations:</strong>
+                `;
+    
+                if (result.mutations.length === 0) {
+    
+                    evolutionText += `
+                        <p>No mutation occurred</p>
+                    `;
+    
+                } else {
+    
+                    for (const mutation of result.mutations) {
+                        evolutionText += `
+                            <p>
+                                ${mutation.gene}:
+                                ${mutation.oldValue.toFixed(2)}
+                                →
+                                ${mutation.newValue.toFixed(2)}
+                            </p>
+                        `;
+                    }
+                }
+            }
+    
+            evolutionText += `
+                </div>
+                <hr>
+            `;
+        }
+    
+        this.evolutionInfo.innerHTML = `
+            <h3>Latest Evolution</h3>
+            <p>Generation: ${evolutionInfo.generation}</p>
+            ${evolutionText}
+        `;
+    }
+
+    //Visa indivudella gammal!: 
+    /*showMutation(mutationInfo) {
         let mutationText = "";
     
         if (mutationInfo.mutations.length === 0) {
@@ -152,9 +252,8 @@ export default class GUI {
             <h3>Latest Evolution</h3>
             <p>New parasite: #${mutationInfo.id}</p>
             <p>Parents: #${mutationInfo.parent1} + #${mutationInfo.parent2}</p>
-            <p>Generation: ${mutationInfo.generation}</p>
             <strong>Mutations:</strong>
             ${mutationText}
         `;
-    }
+    }*/
 }

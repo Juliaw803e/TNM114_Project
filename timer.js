@@ -23,6 +23,11 @@ class Timer {
     isFinished() {
         return this.finished;
     }
+
+    //For countdown: 
+    getTimeLeft() {
+        return Math.max(0, this.duration - this.elapsed);
+    }
 }
 
 export default Timer;
