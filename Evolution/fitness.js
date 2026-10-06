@@ -1,5 +1,4 @@
 class Fitness {
-
     static calculate(parasites) {
         return parasites.map(parasite => {
 

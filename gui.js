@@ -13,7 +13,7 @@ export default class GUI {
         
         //Antal katter: 
         const catLabel = document.createElement("label");
-        catLabel.textContent = "Antal katter: ";
+        catLabel.textContent = "Number of cats: ";
     
         const catInput = document.createElement("input");
         catInput.type = "number";
@@ -25,7 +25,7 @@ export default class GUI {
     
         //Antal råttor: 
         const ratLabel = document.createElement("label");
-        ratLabel.textContent = "Antal råttor: ";
+        ratLabel.textContent = "Number of rats: ";
     
         const ratInput = document.createElement("input");
         ratInput.type = "number";
@@ -120,7 +120,7 @@ export default class GUI {
         evolutionStatus.innerHTML = `
             <h3>Evolution</h3>
             <p>Next evolution: --</p>
-            <p>Generation: 0</p>
+            <p>Generation: 1</p>
         `;
 
         this.evolutionStatus = evolutionStatus;
@@ -187,10 +187,9 @@ export default class GUI {
     
                 evolutionText += `
                     <p>New parasite: #${result.parasiteId}</p>
-                    <p>
-                        Parents:
-                        #${result.parent1} + #${result.parent2}
-                    </p>
+                    <p> Parents: </p>
+                    <p> #${result.parent1} — Fitness: ${result.parent1Fitness.toFixed(2)}</p>
+                    <p> #${result.parent2} — Fitness: ${result.parent2Fitness.toFixed(2)}</p>
     
                     <strong>Mutations:</strong>
                 `;
@@ -224,36 +223,7 @@ export default class GUI {
     
         this.evolutionInfo.innerHTML = `
             <h3>Latest Evolution</h3>
-            <p>Generation: ${evolutionInfo.generation}</p>
             ${evolutionText}
         `;
     }
-
-    //Visa indivudella gammal!: 
-    /*showMutation(mutationInfo) {
-        let mutationText = "";
-    
-        if (mutationInfo.mutations.length === 0) {
-            mutationText = "No mutation occurred";
-        } else {
-            for (const mutation of mutationInfo.mutations) {
-                mutationText += `
-                    <p>
-                        ${mutation.gene}:
-                        ${mutation.oldValue.toFixed(2)}
-                        →
-                        ${mutation.newValue.toFixed(2)}
-                    </p>
-                `;
-            }
-        }
-    
-        this.evolutionInfo.innerHTML = `
-            <h3>Latest Evolution</h3>
-            <p>New parasite: #${mutationInfo.id}</p>
-            <p>Parents: #${mutationInfo.parent1} + #${mutationInfo.parent2}</p>
-            <strong>Mutations:</strong>
-            ${mutationText}
-        `;
-    }*/
 }

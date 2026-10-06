@@ -18,7 +18,7 @@ class Simulation {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
 
-        this.generation = 0;
+        this.generation = 1;
         this.reproductionTimer = new Timer(30); //Global timer for when selection happens
 
         this.canvas.width = 800;
@@ -153,14 +153,28 @@ class Simulation {
             const fitnessValues = Fitness.calculate(
                 cat.eatenParasites
             );
+
+            console.log("FITNESS VALUES:", fitnessValues); //ta bort när d funkar
+            console.log("TOTAL FITNESS:",
+                fitnessValues.reduce((sum, item) => sum + item.fitness, 0)
+            );
     
             // 2. Välj de två bästa parasiterna
             const [parent1, parent2] = Selection.select(
                 fitnessValues
             );
-    
-            console.log("Parent 1:", parent1.id);
-            console.log("Parent 2:", parent2.id);
+
+            console.log("PARENT 1:", parent1);//ta bort när d funkar
+            console.log("PARENT 2:", parent2);
+
+            //Spara fitness för valda föräldrar
+            const parent1Fitness = fitnessValues.find(
+                item => item.parasite.id === parent1.id
+            ).fitness;
+            
+            const parent2Fitness = fitnessValues.find(
+                item => item.parasite.id === parent2.id
+            ).fitness;
     
             // 3. Skapa en ny parasit från de två föräldrarna
             const newParasite = Evolution.reproduce(
@@ -180,7 +194,9 @@ class Simulation {
                 reproduced: true,
                 parasiteId: newParasite.id,
                 parent1: parent1.id,
+                parent1Fitness: parent1Fitness,
                 parent2: parent2.id,
+                parent2Fitness: parent2Fitness,
                 mutations: newParasite.mutations
             });
     
@@ -205,58 +221,6 @@ class Simulation {
         // 8. Starta om den globala evolutionstimern
         this.reproductionTimer.reset();
     }
-
-   /* catEatsRat(cat, rat) {
-        cat.hasEaten = true;
-        cat.poopCount = 0;
-    
-        if (rat.parasite) {
-    
-            if (!cat.currentParasite) {
-    
-                cat.currentParasite = rat.parasite;
-                cat.parasiteInPoopCount = 0;
-    
-            } else if (cat.currentParasite.id !== rat.parasite.id) {
-                console.log("SECOND PARASITE EATEN");
-                console.log("Parent 1:", cat.currentParasite.id);
-                console.log("Parent 2:", rat.parasite.id);
-
-                cat.parasiteInPoopCount = 0;
-            
-                const parent1 = cat.currentParasite;
-                const parent2 = rat.parasite;
-            
-                const newParasite = Evolution.reproduce(
-                    parent1,
-                    parent2,
-                    this.nextParasiteId
-                );
-
-                console.log("NEW PARASITE:", newParasite);
-                console.log("MUTATIONS:", newParasite.mutations);
-            
-                cat.currentParasite = newParasite;
-            
-                if (this.onMutation) {
-                    console.log("SENDING TO GUI");
-                    this.onMutation({
-                        id: newParasite.id,
-                        parent1: parent1.id,
-                        parent2: parent2.id,
-                        generation: newParasite.generation,
-                        mutations: newParasite.mutations
-                    });
-                }
-            
-                this.nextParasiteId++;
-            }
-        }
-    
-        cat.isAffected = Boolean(cat.currentParasite);
-    }
-    //Här slutar test av catseatrat*/
-
 
     catDefecates(cat) {
         if (cat.poopCount >= cat.maxPoops) {
