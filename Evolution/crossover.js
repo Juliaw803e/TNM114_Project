@@ -21,10 +21,15 @@ export default class Crossover {
                 ? parentA.manipulation
                 : parentB.manipulation;
 
-        child.survivalTime =
+        child.pooSurvivalTime =
             Math.random() < 0.5
-                ? parentA.survivalTime
-                : parentB.survivalTime;
+                ? parentA.pooSurvivalTime
+                : parentB.pooSurvivalTime;
+
+        child.hostSurvivalTime =
+            Math.random() < 0.5
+                ? parentA.hostSurvivalTime
+                : parentB.hostSurvivalTime;
                 
          // Child belongs to the next generation
          child.generation =

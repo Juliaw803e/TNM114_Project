@@ -7,7 +7,7 @@ export class CatBehaviour {
         this.onRatCaught = onRatCaught;
         this.onPoop = onPoop;
 
-        this.detectionRadius = 40; 
+        this.detectionRadius = 60; 
         this.catchDistance = 30;
 
         this.eatingTimer = new Timer(1); // stannar i 1.5 sekunder

@@ -37,15 +37,17 @@ export default class Mutation {
             });
         }
 
-        if (Math.random() < mutationRate) {
-            const oldValue = parasite.survivalTime;
-            parasite.survivalTime += Mutation.randomChange(mutationAmount);
+        for (const gene of ["pooSurvivalTime", "hostSurvivalTime"]) {
+            if (Math.random() < mutationRate) {
+                const oldValue = parasite[gene];
+                parasite[gene] += Mutation.randomChange(mutationAmount);
 
-            mutations.push({
-                gene: "survivalTime",
-                oldValue: oldValue,
-                newValue: parasite.survivalTime
-            });
+                mutations.push({
+                    gene,
+                    oldValue,
+                    newValue: parasite[gene]
+                });
+            }
         }
 
         Mutation.keepGenesInRange(parasite);
@@ -74,7 +76,10 @@ export default class Mutation {
         parasite.manipulation =
             Math.max(0, Math.min(1, parasite.manipulation));
 
-        parasite.survivalTime =
-            Math.max(0, Math.min(1, parasite.survivalTime));
+        parasite.pooSurvivalTime =
+            Math.max(0, Math.min(1, parasite.pooSurvivalTime));
+
+        parasite.hostSurvivalTime =
+            Math.max(0, Math.min(1, parasite.hostSurvivalTime));
     }
 }
