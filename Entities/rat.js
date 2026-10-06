@@ -31,6 +31,7 @@ class Rat {
         this.parasiteAge = 0;
         this.parasiteLifetime = null;
         this.isDead = false;
+        this.respawnTimeRemaining = null;
 
         this.isHunted = false;
         this.huntedBy = null; 
@@ -59,6 +60,26 @@ class Rat {
         this.parasite = null;
         this.parasiteAge = 0;
         this.parasiteLifetime = null;
+    }
+
+    respawn(x, y) {
+        this.x = x;
+        this.y = y;
+        this.hunger = 0;
+        this.hungerTimer.reset();
+        this.clearParasite();
+        this.infectionTime = 0;
+        this.deathTime = null;
+        this.isDead = false;
+        this.respawnTimeRemaining = null;
+        this.isHunted = false;
+        this.huntedBy = null;
+        this.isCaught = false;
+        this.isEating = false;
+        this.eatingTimer.reset();
+        this.spriteAngle = 0;
+        this.spriteFlipTimer = 0;
+        this.spriteFlipped = false;
     }
 
     //bild på rat med råttans x och y.

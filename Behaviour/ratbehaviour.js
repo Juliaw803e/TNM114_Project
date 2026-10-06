@@ -181,6 +181,14 @@ class RatBehaviour {
             rat.y = canvas.height - 10;
         }
     }
+
+    resetAfterRespawn() {
+        this.targetPoo = null;
+        this.directionX = Math.random() * 2 - 1;
+        this.directionY = Math.random() * 2 - 1;
+        this.directionTimer = 0;
+        this.directionChangeTime = 1 + Math.random() * 3;
+    }
 }
 
 export default RatBehaviour;

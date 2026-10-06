@@ -99,6 +99,20 @@ class Simulation {
 
     //Evolutionsfunktioner: -------
     //Test för att visa mutation i GUI: 
+    respawnRat(rat) {
+        const ratIndex = this.rats.indexOf(rat);
+        if (ratIndex === -1) {
+            return;
+        }
+
+        const margin = 20;
+        const x = margin + Math.random() * (this.canvas.width - margin * 2);
+        const y = margin + Math.random() * (this.canvas.height - margin * 2);
+
+        rat.respawn(x, y);
+        this.behaviourstore[ratIndex].resetAfterRespawn();
+    }
+
     catEatsRat(cat, rat) {
         cat.hasEaten = true;
         cat.poopCount = 0;
@@ -225,10 +239,22 @@ class Simulation {
         
         //Update and draw rats
         for (let i = 0; i < this.rats.length; i++) {
-            this.behaviourstore[i].update(this.rats[i], deltaTime, this.canvas, this.poos);
+            const rat = this.rats[i];
+            this.behaviourstore[i].update(rat, deltaTime, this.canvas, this.poos);
+
+            if (rat.isDead || rat.isCaught) {
+                if (rat.respawnTimeRemaining === null) {
+                    rat.respawnTimeRemaining = 5;
+                }
+
+                rat.respawnTimeRemaining -= deltaTime;
+                if (rat.respawnTimeRemaining <= 0) {
+                    this.respawnRat(rat);
+                }
+            }
             
-            if (!this.rats[i].isCaught && !this.rats[i].isDead) {
-                this.rats[i].draw(this.ctx);
+            if (!rat.isCaught && !rat.isDead) {
+                rat.draw(this.ctx);
             }
         }
 
