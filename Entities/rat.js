@@ -15,11 +15,10 @@ class Rat {
         this.x = x;
         this.y = y;
 
-        //this.hunger = 0;
-        //this.hungerTimer = new Timer(5);
+        this.hunger = 0;
+        this.hungerTimer = new Timer(5);
 
-        this.speed = 75;
-        this.fear = 0.2;
+        this.speed = 90;
         this.spriteAngle = 0;
         this.spriteFlipTimer = 0;
         this.spriteFlipped = false;
@@ -29,7 +28,10 @@ class Rat {
         this.parasite = null;
         this.infectionTime = 0;
         this.deathTime = null;
+        this.parasiteAge = 0;
+        this.parasiteLifetime = null;
         this.isDead = false;
+        this.respawnTimeRemaining = null;
 
         this.isHunted = false;
         this.huntedBy = null; 
@@ -40,18 +42,51 @@ class Rat {
     }
 
     addParasite(parasite) {
+        const aggressiveness = Math.max(0, Math.min(1, parasite.aggressiveness));
+        const hostSurvivalTime = Math.max(0, Math.min(1, parasite.hostSurvivalTime));
+
         this.isAffected = true;
         this.parasiteId = parasite.id;
         this.parasite = parasite;
         this.infectionTime = 0;
+        this.deathTime = 60 - aggressiveness * 50;
+        this.parasiteAge = 0;
+        this.parasiteLifetime = 5 + hostSurvivalTime * 55;
     }
 
-    //Rita en cirkel med råttans x och y.
+    clearParasite() {
+        this.isAffected = false;
+        this.parasiteId = null;
+        this.parasite = null;
+        this.parasiteAge = 0;
+        this.parasiteLifetime = null;
+    }
+
+    respawn(x, y) {
+        this.x = x;
+        this.y = y;
+        this.hunger = 0;
+        this.hungerTimer.reset();
+        this.clearParasite();
+        this.infectionTime = 0;
+        this.deathTime = null;
+        this.isDead = false;
+        this.respawnTimeRemaining = null;
+        this.isHunted = false;
+        this.huntedBy = null;
+        this.isCaught = false;
+        this.isEating = false;
+        this.eatingTimer.reset();
+        this.spriteAngle = 0;
+        this.spriteFlipTimer = 0;
+        this.spriteFlipped = false;
+    }
+
+    //bild på rat med råttans x och y.
     draw(ctx) {
         let sprite = this.isAffected ? infectedRatSprite : ratSprite;
         const timeUntilDeath = this.deathTime - this.infectionTime;
         const shouldShowDyingSprite =
-            this.isAffected &&
             this.deathTime !== null &&
             timeUntilDeath > 0 &&
             timeUntilDeath <= 2 &&

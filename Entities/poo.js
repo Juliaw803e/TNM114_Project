@@ -13,13 +13,20 @@ class Poo {
         this.isAffected = parasite !== null;
         this.age = 0;
         this.lifetime = parasite
-            ? 5 + parasite.survivalTime * 25 //bajs ligger kvar i 5 sekunder + parasitens överlevnadstid * 25 sekunder
-            : Infinity; // Om det inte finns någon parasit, kommer bajset att ligga kvar för alltid
+            ? 5 + parasite.pooSurvivalTime * 25
+            : Infinity;
     }
 
     update(deltaTime) {
-        this.age += deltaTime;
-        return this.age < this.lifetime;
+        if (this.parasite) {
+            this.age += deltaTime;
+            if (this.age >= this.lifetime) {
+                this.parasite = null;
+                this.isAffected = false;
+            }
+        }
+
+        return true;
     }
 
      //Rita en cirkel med råttans x och y.

@@ -26,22 +26,23 @@ class RatBehaviour {
             rat.spriteFlipped = !rat.spriteFlipped;
         }
 
-        if (rat.parasite) { //om råttan har en parasit så kommer den dö mellan 60 och 10 sek beroende på aggressivitet. 
-            const aggressiveness = Math.max(
-                0,
-                Math.min(1, rat.parasite.aggressiveness)
-            );
-            const deathTime = 60 - aggressiveness * 50; //mellan 60 och 10 sek 
-            rat.deathTime = deathTime;
+        if (rat.deathTime !== null) {
+            rat.infectionTime += deltaTime;
+        }
 
-            rat.infectionTime += deltaTime; //uppdatera infectionTime
-            if (rat.infectionTime >= deathTime) { 
-                rat.isDead = true;
-                rat.isHunted = false;
-                rat.huntedBy = null;
-                rat.isEating = false;
-                return;
+        if (rat.parasite) {
+            rat.parasiteAge += deltaTime;
+            if (rat.parasiteAge >= rat.parasiteLifetime) {
+                rat.clearParasite();
             }
+        }
+
+        if (rat.deathTime !== null && rat.infectionTime >= rat.deathTime) {
+            rat.isDead = true;
+            rat.isHunted = false;
+            rat.huntedBy = null;
+            rat.isEating = false;
+            return;
         }
 
         if (rat.isHunted) {
@@ -94,13 +95,14 @@ class RatBehaviour {
         let dy = rat.y - cat.y;
     
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const manipulation = rat.parasite?.manipulation ?? 0; // manipulation om den har parasit 
-        const effectiveFear = rat.fear * (1 - manipulation); // Justera rädslan baserat på manipulationen
-        const fleeSpeed = rat.speed * (1 + effectiveFear); // Justera hastigheten baserat på rädslan
+        const manipulation = rat.parasite?.manipulation ?? 0;
+        // Ju högre manipulation, desto lägre flykthastighet (vid 1.0 är flykthastigheten 0)
+        const fleeSpeed = rat.speed * (1 - manipulation);
     
         if (distance > 0) {
             dx /= distance;
             dy /= distance;
+            
             // Tvinga råttan bort från kanten
             if (rat.x <= 10 && dx < 0) {
                 dx = 0;
@@ -155,6 +157,10 @@ class RatBehaviour {
                 this.onPooEaten(rat, this.targetPoo);
                 this.targetPoo = null;
             }
+
+            if (rat.parasite) {
+                rat.infectionTime = 0;
+            }
         }
     }
 
@@ -174,6 +180,14 @@ class RatBehaviour {
         if (rat.y > canvas.height - 10) {
             rat.y = canvas.height - 10;
         }
+    }
+
+    resetAfterRespawn() {
+        this.targetPoo = null;
+        this.directionX = Math.random() * 2 - 1;
+        this.directionY = Math.random() * 2 - 1;
+        this.directionTimer = 0;
+        this.directionChangeTime = 1 + Math.random() * 3;
     }
 }
 
