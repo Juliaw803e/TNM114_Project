@@ -7,7 +7,7 @@ class Fitness {
                 0.20 * parasite.manipulation +
                 0.25 * parasite.hostSurvivalTime +
                 0.15 * parasite.pooSurvivalTime +
-                0.20 * parasite.nutritientStealing;
+                0.20 * parasite.nutrientStealing;
 
             return {
                 parasite: parasite,

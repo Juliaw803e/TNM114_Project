@@ -1,21 +1,5 @@
-class Selection {
-
-    static select(fitnessValues) {
-        const sorted = [...fitnessValues].sort(
-            (a, b) => b.fitness - a.fitness
-        );
-
-        return [
-            sorted[0].parasite,
-            sorted[1].parasite
-        ];
-    }
-}
-
-export default Selection;
-
 //Roulette wheel: 
-/*export default class Selection {
+export default class Selection {
 
     static select(fitnessValues) {
 
@@ -52,4 +36,4 @@ export default Selection;
 
         return [parent1, parent2];
     }
-}*/
+}

@@ -119,6 +119,7 @@ class Simulation {
         this.behaviourstore[ratIndex].resetAfterRespawn();
     }
 
+    //Samla bara parasiter som katten ätit: 
     catEatsRat(cat, rat) {
         cat.hasEaten = true;
         cat.poopCount = 0;
@@ -167,19 +168,11 @@ class Simulation {
             const fitnessValues = Fitness.calculate(
                 cat.eatenParasites
             );
-
-            console.log("FITNESS VALUES:", fitnessValues); //ta bort när d funkar
-            console.log("TOTAL FITNESS:",
-                fitnessValues.reduce((sum, item) => sum + item.fitness, 0)
-            );
     
             // 2. Välj de två bästa parasiterna
             const [parent1, parent2] = Selection.select(
                 fitnessValues
             );
-
-            console.log("PARENT 1:", parent1);//ta bort när d funkar
-            console.log("PARENT 2:", parent2);
 
             //Spara fitness för valda föräldrar
             const parent1Fitness = fitnessValues.find(
@@ -198,9 +191,6 @@ class Simulation {
             );
 
             cat.currentParasite = newParasite;//for the baby
-
-            console.log("NEW PARASITE:", newParasite);
-            console.log("MUTATIONS:", newParasite.mutations);
     
             // 4. Spara resultatet från denna katt
             evolutionResults.push({
