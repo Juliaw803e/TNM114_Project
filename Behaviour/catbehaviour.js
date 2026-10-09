@@ -7,7 +7,7 @@ export class CatBehaviour {
         this.onRatCaught = onRatCaught;
         this.onPoop = onPoop;
 
-        this.detectionRadius = 60; 
+        this.detectionRadius = 100;
         this.catchDistance = 30;
 
         this.eatingTimer = new Timer(1); // stannar i 1 sek
@@ -41,6 +41,15 @@ export class CatBehaviour {
 
         //Har en råtta den jagar?
         if (this.targetRat) {
+            if (!this.targetRat.parasite) {
+                const infectedTarget = this.findNearestRat(true);
+                if (infectedTarget) {
+                    this.loseTarget();
+                    this.targetRat = infectedTarget;
+                    this.startHunt();
+                }
+            }
+
             this.chase(deltaTime, canvas);
         } else {
             this.findTarget();
@@ -67,18 +76,31 @@ export class CatBehaviour {
     }
 
     findTarget() {
+        this.targetRat =
+            this.findNearestRat(true) || this.findNearestRat(false);
+    }
+
+    findNearestRat(infected) {
+        let closestRat = null;
+        let closestDistance = this.detectionRadius;
+
         for (const rat of this.rats) {
+            if (rat.isCaught || rat.isDead || Boolean(rat.parasite) !== infected) {
+                continue;
+            }
 
             const dx = rat.x - this.cat.x;
             const dy = rat.y - this.cat.y;
 
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (!rat.isCaught && !rat.isDead && distance < this.detectionRadius) {
-                this.targetRat = rat;
-                return;
+            if (distance < closestDistance) {
+                closestRat = rat;
+                closestDistance = distance;
             }
         }
+
+        return closestRat;
     }
 
     startHunt() {

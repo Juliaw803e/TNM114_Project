@@ -35,10 +35,11 @@ class Simulation {
 
         // Create rats ska komma från input istället för 10!!
         for (let i = 0; i < numberOfRats; i++) {
+            const { x, y } = this.getRatSpawnPosition();
             const rat = new Rat(
                 i,
-                Math.random() * this.canvas.width,
-                Math.random() * this.canvas.height
+                x,
+                y
             );
 
             this.rats.push(rat);
@@ -105,15 +106,18 @@ class Simulation {
 
     //Evolutionsfunktioner: -------
     //Test för att visa mutation i GUI: 
+    getRatSpawnPosition() {
+        const x = Math.random() < 0.5 ? 10 : this.canvas.width - 10;
+        return { x, y: this.canvas.height / 2 };
+    }
+
     respawnRat(rat) {
         const ratIndex = this.rats.indexOf(rat);
         if (ratIndex === -1) {
             return;
         }
 
-        const margin = 20;
-        const x = margin + Math.random() * (this.canvas.width - margin * 2);
-        const y = margin + Math.random() * (this.canvas.height - margin * 2);
+        const { x, y } = this.getRatSpawnPosition();
 
         rat.respawn(x, y);
         this.behaviourstore[ratIndex].resetAfterRespawn();
@@ -236,14 +240,6 @@ class Simulation {
             if (cat.parasiteInPoopCount < 4) {
                 parasiteInPoo = cat.currentParasite;
                 cat.parasiteInPoopCount++;
-
-                if (cat.parasiteInPoopCount === 4) {
-                    cat.currentParasite = null;
-                    cat.isAffected = false;
-                }
-            } else {
-                cat.currentParasite = null;
-                cat.isAffected = false;
             }
         }
 

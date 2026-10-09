@@ -4,8 +4,6 @@ const ratSprite = new Image();
 ratSprite.src = new URL("../img/rat.png", import.meta.url).href;
 const infectedRatSprite = new Image();
 infectedRatSprite.src = new URL("../img/rat_p.png", import.meta.url).href;
-const dyingRatSprite = new Image();
-dyingRatSprite.src = new URL("../img/rat_p2.png", import.meta.url).href;
 
 
 class Rat {
@@ -18,7 +16,8 @@ class Rat {
         this.hunger = 0;
         this.hungerTimer = new Timer(5);
 
-        this.speed = 90;
+        this.baseSpeed = 90;
+        this.speed = this.baseSpeed;
         this.spriteAngle = 0;
         this.spriteFlipTimer = 0;
         this.spriteFlipped = false;
@@ -26,8 +25,6 @@ class Rat {
         this.isAffected = false;
         this.parasiteId = null;
         this.parasite = null;
-        this.infectionTime = 0;
-        this.deathTime = null;
         this.parasiteAge = 0;
         this.parasiteLifetime = null;
         this.isDead = false;
@@ -48,8 +45,7 @@ class Rat {
         this.isAffected = true;
         this.parasiteId = parasite.id;
         this.parasite = parasite;
-        this.infectionTime = 0;
-        this.deathTime = 60 - aggressiveness * 50;
+        this.speed = this.baseSpeed * (1 - aggressiveness * 0.7);
         this.parasiteAge = 0;
         this.parasiteLifetime = 5 + hostSurvivalTime * 55;
     }
@@ -58,6 +54,7 @@ class Rat {
         this.isAffected = false;
         this.parasiteId = null;
         this.parasite = null;
+        this.speed = this.baseSpeed;
         this.parasiteAge = 0;
         this.parasiteLifetime = null;
     }
@@ -68,8 +65,6 @@ class Rat {
         this.hunger = 0;
         this.hungerTimer.reset();
         this.clearParasite();
-        this.infectionTime = 0;
-        this.deathTime = null;
         this.isDead = false;
         this.respawnTimeRemaining = null;
         this.isHunted = false;
@@ -84,17 +79,7 @@ class Rat {
 
     //bild på rat med råttans x och y.
     draw(ctx) {
-        let sprite = this.isAffected ? infectedRatSprite : ratSprite;
-        const timeUntilDeath = this.deathTime - this.infectionTime;
-        const shouldShowDyingSprite =
-            this.deathTime !== null &&
-            timeUntilDeath > 0 &&
-            timeUntilDeath <= 2 &&
-            Math.floor(this.infectionTime / 0.25) % 2 === 0;
-
-        if (shouldShowDyingSprite) {
-            sprite = dyingRatSprite;
-        }
+        const sprite = this.isAffected ? infectedRatSprite : ratSprite;
 
         if (!sprite.complete || sprite.naturalWidth === 0) {
             return;

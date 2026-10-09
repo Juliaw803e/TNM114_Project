@@ -26,23 +26,11 @@ class RatBehaviour {
             rat.spriteFlipped = !rat.spriteFlipped;
         }
 
-        if (rat.deathTime !== null) {
-            rat.infectionTime += deltaTime;
-        }
-
         if (rat.parasite) {
             rat.parasiteAge += deltaTime;
             if (rat.parasiteAge >= rat.parasiteLifetime) {
                 rat.clearParasite();
             }
-        }
-
-        if (rat.deathTime !== null && rat.infectionTime >= rat.deathTime) {
-            rat.isDead = true;
-            rat.isHunted = false;
-            rat.huntedBy = null;
-            rat.isEating = false;
-            return;
         }
 
         if (rat.isHunted) {
@@ -138,7 +126,7 @@ class RatBehaviour {
             const dy = poo.y - rat.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
     
-            if (distance < 20 && !rat.isEating) {
+            if (distance < 45 && !rat.isEating) {
                 rat.isEating = true;
                 this.targetPoo = poo;
                 rat.eatingTimer.reset();
@@ -156,10 +144,6 @@ class RatBehaviour {
             if (this.targetPoo) {
                 this.onPooEaten(rat, this.targetPoo);
                 this.targetPoo = null;
-            }
-
-            if (rat.parasite) {
-                rat.infectionTime = 0;
             }
         }
     }
