@@ -21,7 +21,7 @@ class Simulation {
         this.generation = 1;
         this.reproductionTimer = new Timer(30); //Global timer for when selection happens
 
-        this.canvas.width = 800;
+        this.canvas.width = 950;
         this.canvas.height = 600;
 
         this.rats = [];

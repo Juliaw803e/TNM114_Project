@@ -1,20 +1,32 @@
 body {
     margin: 0;
     text-align: center;
-    background-color: rgb(253, 253, 253);
+    background-image: url("./img/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 h1 {
-    color:rgb(139, 189, 236); 
+    color:rgb(255, 255, 255); 
     font-family: monospace;
+    margin-top: 30px;
+    margin-bottom: 20px;
 }
 
 canvas {
-    border: 1px solid rgb(139, 189, 236);
+    border: solid rgb(255, 255, 255);
     border-radius: 10px; 
-    background-color: rgb(101, 166, 85);
-    width: 800px;
-    height: 600px;
+   
+    width: 100%;
+    height: auto;
+    display: block;
+
+    background-image: url("./img/bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /*GUI*/
@@ -27,13 +39,15 @@ canvas {
 }
 
 #simulationCanvas {
-    width: min(800px, calc(100vw - 250px));
+    width: min(950px, calc(100vw - 270px));
     height: auto;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 950 / 600;
+    display: block;
 }
 
 #gui {
-    width: 210px;
+    width: 220px;
+    height: 600px;
     flex-shrink: 0;
 
     display: flex;
@@ -44,7 +58,8 @@ canvas {
     padding: 15px;
     border: solid; 
     border-radius: 10px; 
-    border-color: rgb(139, 189, 236);
+    border-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.412);
 }
 
 #gui label {
@@ -55,43 +70,125 @@ canvas {
     font-family: monospace;
 }
 
+#gui label h3 {
+    font-family: monospace;
+    font-size: 14px;
+    margin: 0 0 5px 0;
+}
+
 #gui input {
     width: 100px;
     padding: 5px;
     font-size: 14px;
 }
 
+
 #gui button {
-    width: 120px;
-    padding: 8px;
-    font-size: 14px;
+    width: 140px;
+    padding: 10px 15px;
+
+    background-color: rgb(83, 145, 203);
+    color: rgb(35, 35, 65);
+
+    border: none;
+    border-radius: 8px;
+
     font-family: monospace;
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+#gui button:hover {
+    background-color: rgb(110, 169, 225);
+    transform: translateY(-2px);
+}
+
+#gui button:active {
+    transform: translateY(0);
+}
+
+#gui button:focus-visible {
+    outline: 2px solid rgb(60, 115, 170);
+    outline-offset: 3px;
 }
 
 /*Evolution info box*/
+#canvas-wrapper {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+}
+
+#simulationCanvas {
+    display: block;
+}
+
+#evolution-status {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+
+    width: 190px;
+    padding: 10px;
+    box-sizing: border-box;
+
+    border: solid; 
+
+    background-color: rgba(218, 237, 255, 0.514);
+    border-radius: 8px;
+
+    font-family: monospace;
+    font-size: 12px;
+    line-height: normal;
+    text-align: left;
+}
+
 #evolution-info {
-    width: 210px;
+    width: 220px;
     min-height: 220px;
-    max-height: 220px;
+    max-height: 270px;
     overflow-y: auto;
 
     box-sizing: border-box;
     padding: 12px;
 
-    background-color: rgb(218, 237, 255);
+    background-color: rgba(255, 255, 255, 0.704);
     border-radius: 8px;
 
     font-size: 11px;
     font-family: monospace;
     text-align: left;
 }
+#evolution-status h3 {
+    font-size: 15px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+#evolution-status p {
+    margin: 5px 0;
+    line-height: 1.4;
+}
 
 #evolution-info h3 {
     margin-top: 0;
     margin-bottom: 10px;
 }
+#evolution-info h2 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 10px;
+}
 
 #evolution-info p {
     margin: 1px 0;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    color: rgb(4, 36, 88); 
+}
+#evolution-info strong {
+    margin-bottom: 10px;
 }

@@ -13,38 +13,48 @@ export default class GUI {
         
         //Antal katter: 
         const catLabel = document.createElement("label");
-        catLabel.textContent = "Number of cats: ";
-    
+
+        const catHeading = document.createElement("h3");
+        catHeading.textContent = "Number of cats:";
+
         const catInput = document.createElement("input");
         catInput.type = "number";
         catInput.min = "1";
         catInput.value = "2";
-    
+
+        catLabel.appendChild(catHeading);
         catLabel.appendChild(catInput);
         gui.appendChild(catLabel);
     
         //Antal råttor: 
+        // Number of rats
         const ratLabel = document.createElement("label");
-        ratLabel.textContent = "Number of rats: ";
-    
+
+        const ratHeading = document.createElement("h3");
+        ratHeading.textContent = "Number of rats:";
+
         const ratInput = document.createElement("input");
         ratInput.type = "number";
         ratInput.min = "3";
         ratInput.value = "10";
-    
+
+        ratLabel.appendChild(ratHeading);
         ratLabel.appendChild(ratInput);
         gui.appendChild(ratLabel);
 
         //Antal parasiter: 
+        const parasiteLabel = document.createElement("label");
+
+        const parasiteHeading = document.createElement("h3");
+        parasiteHeading.textContent = "Number of parasites:";
+
         const parasiteInput = document.createElement("input");
         parasiteInput.type = "number";
         parasiteInput.min = "1";
         parasiteInput.value = "3";
-
-        // Sätt max från början
         parasiteInput.max = ratInput.value;
 
-        // Uppdatera max om antal råttor ändras
+        // Update the maximum number of parasites when the number of rats changes
         ratInput.addEventListener("input", () => {
             parasiteInput.max = ratInput.value;
 
@@ -53,11 +63,9 @@ export default class GUI {
             }
         });
 
-        const parasiteLabel = document.createElement("label");
-        parasiteLabel.textContent = "Number of parasites:";
-
+        parasiteLabel.appendChild(parasiteHeading);
+        parasiteLabel.appendChild(parasiteInput);
         gui.appendChild(parasiteLabel);
-        gui.appendChild(parasiteInput);
 
         //Startstopknapp och pauseknapp: 
         const startStopButton = document.createElement("button");
@@ -118,13 +126,14 @@ export default class GUI {
         evolutionStatus.id = "evolution-status";
 
         evolutionStatus.innerHTML = `
-            <h3>Evolution</h3>
+            <h3>Evolution timer</h3>
             <p>Next evolution: --</p>
             <p>Generation: 1</p>
         `;
 
         this.evolutionStatus = evolutionStatus;
-        gui.appendChild(evolutionStatus);
+        const canvasWrapper = document.getElementById("canvas-wrapper");
+        canvasWrapper.appendChild(evolutionStatus);
 
         //Informationsruta om mutationer:---------------
         const evolutionInfo = document.createElement("div");
@@ -152,7 +161,7 @@ export default class GUI {
         const timeLeft = this.simulation.reproductionTimer.getTimeLeft();
     
         this.evolutionStatus.innerHTML = `
-            <h3>Evolution</h3>
+            <h3>Evolution timer</h3>
             <p>Next evolution: ${timeLeft.toFixed(1)} s</p>
             <p>Generation: ${this.simulation.generation}</p>
         `;
@@ -174,7 +183,7 @@ export default class GUI {
     
             evolutionText += `
                 <div>
-                    <p><strong>Cat ${result.catId}</strong></p>
+                    <h3><strong>Cat ${result.catId}</strong></h3>
             `;
     
             if (!result.reproduced) {
@@ -187,11 +196,10 @@ export default class GUI {
     
                 evolutionText += `
                     <p>New parasite: #${result.parasiteId}</p>
-                    <p> Parents: </p>
-                    <p> #${result.parent1} — Fitness: ${result.parent1Fitness.toFixed(2)}</p>
-                    <p> #${result.parent2} — Fitness: ${result.parent2Fitness.toFixed(2)}</p>
+                    <p> Parent 1: #${result.parent1} — Fitness: ${result.parent1Fitness.toFixed(2)}</p>
+                    <p> Parent 2: #${result.parent2} — Fitness: ${result.parent2Fitness.toFixed(2)}</p>
     
-                    <strong>Mutations:</strong>
+                    <h2><strong>Mutations:</strong></h2>
                 `;
     
                 if (result.mutations.length === 0) {
