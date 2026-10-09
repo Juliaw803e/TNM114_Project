@@ -194,7 +194,8 @@ class Simulation {
                 this.nextParasiteId
             );
 
-            cat.currentParasite = newParasite;//for the baby
+            cat.currentParasite = newParasite;
+            cat.parasiteInPoopCount = 0;
     
             // 4. Spara resultatet från denna katt
             evolutionResults.push({
@@ -234,19 +235,22 @@ class Simulation {
         if (cat.poopCount >= cat.maxPoops) {
             return;
         }
-
+    
         let parasiteInPoo = null;
-        if (cat.currentParasite) {
-            if (cat.parasiteInPoopCount < 4) {
-                parasiteInPoo = cat.currentParasite;
-                cat.parasiteInPoopCount++;
-            }
+    
+        const parasiteToSpread =
+            cat.currentParasite ||
+            cat.eatenParasites?.[cat.eatenParasites.length - 1];
+    
+        if (parasiteToSpread && cat.parasiteInPoopCount < 4) {
+            parasiteInPoo = parasiteToSpread;
+            cat.parasiteInPoopCount++;
         }
-
+    
         const poo = new Poo(cat.x, cat.y, parasiteInPoo);
         this.poos.push(poo);
         cat.poopCount++;
-
+    
         return poo;
     }
 
