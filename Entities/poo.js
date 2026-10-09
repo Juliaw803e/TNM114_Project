@@ -29,7 +29,7 @@ class Poo {
         return true;
     }
 
-     //Rita en cirkel med råttans x och y.
+     //bild på BAJS med råttans x och y.
       draw(ctx) {
         const sprite = this.isAffected ? pooInfectedSprite : pooSprite;
         if (!sprite.complete || sprite.naturalWidth === 0) {

@@ -175,14 +175,6 @@ class Simulation {
             if (cat.parasiteInPoopCount < 4) {
                 parasiteInPoo = cat.currentParasite;
                 cat.parasiteInPoopCount++;
-
-                if (cat.parasiteInPoopCount === 4) {
-                    cat.currentParasite = null;
-                    cat.isAffected = false;
-                }
-            } else {
-                cat.currentParasite = null;
-                cat.isAffected = false;
             }
         }
 

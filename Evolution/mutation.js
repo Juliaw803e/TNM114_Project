@@ -1,6 +1,5 @@
 export default class Mutation {
-    //5% mutation rate and 10% mutation amount by default OBS ändra tillbaka till 0.05
-    static mutate(parasite, mutationRate = 1.0, mutationAmount = 0.1) {
+    static mutate(parasite, mutationRate = 1.0, mutationAmount = 0.15) {
         const mutations = [];
 
         if (Math.random() < mutationRate) {
