@@ -8,18 +8,26 @@ import Poo from "./Entities/poo.js";
 import Evolution from "./Evolution/evolution.js";
 import Fitness from "./Evolution/fitness.js";
 import Selection from "./Evolution/selection.js";
-import Timer from "../timer.js";
+import Timer from "./timer.js";
+
+const PARASITE_TRANSMISSION_CHANCE = 0.85;
+
+const IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP = 3;
 
 class Simulation {
-    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3,  onEvolution) {
+    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onEvolution, onStop = () => {}) {
         this.isRunning = false;
         this.isPaused = false;
-        this. onEvolution =  onEvolution; //För info om generationsrunda
+        this.onEvolution = onEvolution; //För info om generationsrunda
+        this.onStop = onStop;
+        this.stopReason = null;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
 
         this.generation = 1;
-        this.reproductionTimer = new Timer(30); //Global timer for when selection happens
+        this.reproductionTimer = new Timer(15); //Global timer for when selection happens
+        this.previousMeanFitness = null;
+        this.consecutiveIdenticalFitnessEvolutions = 0;
 
         this.canvas.width = 950;
         this.canvas.height = 600;
@@ -151,6 +159,45 @@ class Simulation {
         console.log("EVOLUTION ROUND");
     
         const evolutionResults = [];
+        const fitnessSamples = [];
+        let reproductionOccurred = false;
+
+        const parasitesById = new Map();
+        for (const rat of this.rats) {
+            if (rat.parasite) {
+                parasitesById.set(rat.parasite.id, rat.parasite);
+            }
+        }
+        for (const poo of this.poos) {
+            if (poo.parasite) {
+                parasitesById.set(poo.parasite.id, poo.parasite);
+            }
+        }
+        for (const cat of this.cats) {
+            if (cat.currentParasite) {
+                parasitesById.set(cat.currentParasite.id, cat.currentParasite);
+            }
+            for (const parasite of cat.eatenParasites || []) {
+                parasitesById.set(parasite.id, parasite);
+            }
+        }
+
+        const populationFitness = Fitness.calculate([...parasitesById.values()]);
+        const fitnessByParasiteId = new Map(
+            populationFitness.map(item => [item.parasite.id, item])
+        );
+        const fitnessLog = populationFitness.map(item => ({
+            parasiteId: item.parasite.id,
+            traitScore: item.traitScore,
+            successfulTransmissions: item.successfulTransmissions
+        }));
+
+        console.log(`Fitness and observed outcomes for evolution round ${this.generation}:`);
+        if (fitnessLog.length > 0) {
+            console.table(fitnessLog);
+        } else {
+            console.log("No parasites are present to calculate fitness for.");
+        }
     
         // Gå igenom alla katter
         for (const cat of this.cats) {
@@ -162,17 +209,15 @@ class Simulation {
                     catId: cat.id,
                     reproduced: false
                 });
-            
-                cat.eatenParasites = [];
-            
                 continue;
             }
     
             // 1. Beräkna fitness för alla parasiter katten har ätit
-            const fitnessValues = Fitness.calculate(
-                cat.eatenParasites
+            const fitnessValues = cat.eatenParasites.map(
+                parasite => fitnessByParasiteId.get(parasite.id)
             );
-    
+            fitnessSamples.push(...fitnessValues.map(item => item.fitness));
+
             // 2. Välj de två bästa parasiterna
             const [parent1, parent2] = Selection.select(
                 fitnessValues
@@ -193,6 +238,7 @@ class Simulation {
                 parent2,
                 this.nextParasiteId
             );
+            reproductionOccurred = true;
 
             cat.currentParasite = newParasite;
             cat.parasiteInPoopCount = 0;
@@ -215,6 +261,22 @@ class Simulation {
             // 5. Töm kattens lista inför nästa evolution
             cat.eatenParasites = [];
         }
+
+        if (reproductionOccurred && fitnessSamples.length > 0) {
+            const meanFitness =
+                fitnessSamples.reduce((sum, fitness) => sum + fitness, 0) /
+                fitnessSamples.length;
+
+            this.consecutiveIdenticalFitnessEvolutions =
+                meanFitness === this.previousMeanFitness
+                    ? this.consecutiveIdenticalFitnessEvolutions + 1
+                    : 1;
+
+            this.previousMeanFitness = meanFitness;
+        } else {
+            this.previousMeanFitness = null;
+            this.consecutiveIdenticalFitnessEvolutions = 0;
+        }
     
         // 6. Öka den globala generationen
         this.generation++;
@@ -231,6 +293,26 @@ class Simulation {
         this.reproductionTimer.reset();
     }
 
+    hasParasites() {
+        return (
+            this.rats.some(rat => rat.parasite) ||
+            this.poos.some(poo => poo.parasite) ||
+            this.cats.some(cat =>
+                cat.currentParasite ||
+                cat.eatenParasites?.length > 0
+            )
+        );
+    }
+
+    finish(reason) {
+        if (!this.isRunning) return;
+
+        this.stopReason = reason;
+        this.isRunning = false;
+        this.isPaused = false;
+        this.onStop(reason);
+    }
+
     catDefecates(cat) {
         if (cat.poopCount >= cat.maxPoops) {
             return;
@@ -240,11 +322,15 @@ class Simulation {
     
         const parasiteToSpread =
             cat.currentParasite ||
-            cat.eatenParasites?.[cat.eatenParasites.length - 1];
+            cat.eatenParasites?.[0];
     
         if (parasiteToSpread && cat.parasiteInPoopCount < 4) {
             parasiteInPoo = parasiteToSpread;
             cat.parasiteInPoopCount++;
+
+            if (cat.parasiteInPoopCount === 4) {
+                cat.currentParasite = null;
+            }
         }
     
         const poo = new Poo(cat.x, cat.y, parasiteInPoo);
@@ -263,7 +349,7 @@ class Simulation {
         if (
             !rat.parasite &&
             poo.parasite &&
-            Math.random() < poo.parasite.transmission //transmission probability check 
+            Math.random() < PARASITE_TRANSMISSION_CHANCE
         ) {
             rat.addParasite(poo.parasite);
             poo.parasite.successfulTransmissions++;
@@ -336,6 +422,19 @@ class Simulation {
         //test rita ut poo: 
         for (const poo of this.poos) {
             poo.draw(this.ctx);
+        }
+
+        if (!this.hasParasites()) {
+            this.finish("parasite-extinction");
+            return;
+        }
+
+        if (
+            this.consecutiveIdenticalFitnessEvolutions >=
+            IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP
+        ) {
+            this.finish("fitness-converged");
+            return;
         }
     
         requestAnimationFrame((time) => this.update(time));

@@ -3,16 +3,20 @@ export default class Selection {
 
     static select(fitnessValues) {
 
-        const totalFitness = fitnessValues.reduce(
-            (sum, item) => sum + item.fitness,
-            0
-        );
+        function roulettePick(candidates = fitnessValues) {
+            const candidateFitness = candidates.reduce(
+                (sum, item) => sum + item.fitness,
+                0
+            );
 
-        function roulettePick() {
+            if (candidateFitness === 0) {
+                const randomIndex = Math.floor(Math.random() * candidates.length);
+                return candidates[randomIndex].parasite;
+            }
 
-            let random = Math.random() * totalFitness;
+            let random = Math.random() * candidateFitness;
 
-            for (const item of fitnessValues) {
+            for (const item of candidates) {
                 random -= item.fitness;
 
                 if (random <= 0) {
@@ -20,19 +24,16 @@ export default class Selection {
                 }
             }
 
-            return fitnessValues[fitnessValues.length - 1].parasite;
+            return candidates[candidates.length - 1].parasite;
         }
 
-        // Välj första föräldern
         const parent1 = roulettePick();
-
-        // Välj andra föräldern
-        let parent2 = roulettePick();
-
-        // Om samma valdes, försök igen
-        while (parent2.id === parent1.id && fitnessValues.length > 1) {
-            parent2 = roulettePick();
-        }
+        const differentParents = fitnessValues.filter(
+            item => item.parasite.id !== parent1.id
+        );
+        const parent2 = differentParents.length > 0
+            ? roulettePick(differentParents)
+            : parent1;
 
         return [parent1, parent2];
     }

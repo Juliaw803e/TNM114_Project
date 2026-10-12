@@ -74,7 +74,7 @@ export default class GUI {
         pauseButton.textContent = "Paus";
 
         startStopButton.addEventListener("click", () => {
-            if (!this.simulation) {
+            if (!this.simulation || !this.simulation.isRunning) {
                  // Reset evolution info
                 this.evolutionInfo.innerHTML = `
                     <h3>Latest Evolution</h3>
@@ -90,7 +90,12 @@ export default class GUI {
                     numberOfRats,
                     numberOfCats,
                     numberOfParasites,
-                    (evolutionInfo) => this.showEvolution(evolutionInfo)//callback till GUI
+                    (evolutionInfo) => this.showEvolution(evolutionInfo), //callback till GUI
+                    () => {
+                        startStopButton.textContent = "Start";
+                        pauseButton.textContent = "Paus";
+                        this.updateEvolutionStatus();
+                    }
                 );
         
                 this.simulation.start();
@@ -155,6 +160,19 @@ export default class GUI {
     //Update global evolution status:
     updateEvolutionStatus() {
         if (!this.simulation) {
+            return;
+        }
+
+        if (this.simulation.stopReason) {
+            const message = this.simulation.stopReason === "parasite-extinction"
+                ? "All parasites disappeared"
+                : "Mean fitness was identical for 3 consecutive reproductive evolutions";
+
+            this.evolutionStatus.innerHTML = `
+                <h3>Simulation ended</h3>
+                <p>${message}</p>
+                <p>Generation: ${this.simulation.generation}</p>
+            `;
             return;
         }
     

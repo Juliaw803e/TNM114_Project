@@ -14,18 +14,6 @@ export default class Mutation {
         }
 
         if (Math.random() < mutationRate) {
-            const oldValue = parasite.transmission;
-
-            parasite.transmission += Mutation.randomChange(mutationAmount);
-
-            mutations.push({
-                gene: "transmission",
-                oldValue: oldValue,
-                newValue: parasite.transmission
-            });
-        }
-
-        if (Math.random() < mutationRate) {
             const oldValue = parasite.manipulation;
             parasite.manipulation += Mutation.randomChange(mutationAmount);
 
@@ -68,9 +56,6 @@ export default class Mutation {
 
         parasite.aggressiveness =
             Math.max(0, Math.min(1, parasite.aggressiveness));
-
-        parasite.transmission =
-            Math.max(0, Math.min(1, parasite.transmission));
 
         parasite.manipulation =
             Math.max(0, Math.min(1, parasite.manipulation));

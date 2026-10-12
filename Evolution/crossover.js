@@ -11,11 +11,6 @@ export default class Crossover {
                 ? parentA.aggressiveness
                 : parentB.aggressiveness;
 
-        child.transmission =
-            Math.random() < 0.5
-                ? parentA.transmission
-                : parentB.transmission;
-
         child.manipulation =
             Math.random() < 0.5
                 ? parentA.manipulation
