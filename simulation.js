@@ -12,7 +12,7 @@ import Timer from "./timer.js";
 
 const PARASITE_TRANSMISSION_CHANCE = 0.85;
 
-const IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP = 3;
+const IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP = 5;
 
 class Simulation {
     constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onEvolution, onStop = () => {}, onCatAction = () => {}) {
@@ -290,16 +290,18 @@ class Simulation {
             cat.eatenParasites = [];
         }
 
+        const FITNESS_TOLERANCE = 0.01;
         if (reproductionOccurred && fitnessSamples.length > 0) {
             const meanFitness =
                 fitnessSamples.reduce((sum, fitness) => sum + fitness, 0) /
                 fitnessSamples.length;
 
-            this.consecutiveIdenticalFitnessEvolutions =
-                meanFitness === this.previousMeanFitness
+                this.consecutiveIdenticalFitnessEvolutions =
+                this.previousMeanFitness !== null &&
+                Math.abs(meanFitness - this.previousMeanFitness) < FITNESS_TOLERANCE
                     ? this.consecutiveIdenticalFitnessEvolutions + 1
-                    : 1;
-
+                    : 0;
+        
             this.previousMeanFitness = meanFitness;
         } else {
             this.previousMeanFitness = null;
