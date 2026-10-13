@@ -3,6 +3,9 @@ import Simulation from "./simulation.js";
 export default class GUI {
     constructor(canvas) {
         this.canvas = canvas;
+        this.catActions = [];
+        this.bestFitness = null;
+        this.currentEvolutionRound = null;
 
         this.createGUI();
     }
@@ -77,9 +80,12 @@ export default class GUI {
             if (!this.simulation || !this.simulation.isRunning) {
                  // Reset evolution info
                 this.evolutionInfo.innerHTML = `
-                    <h3>Latest Evolution</h3>
+                    <h3>Cat actions and transmission fitness</h3>
                     <p>Waiting for first evolution...</p>
                 `;
+                this.catActions = [];
+                this.bestFitness = null;
+                this.currentEvolutionRound = null;
                 const numberOfCats = Number(catInput.value);
                 const numberOfRats = Number(ratInput.value);
                 const numberOfParasites = Number(parasiteInput.value);
@@ -95,7 +101,8 @@ export default class GUI {
                         startStopButton.textContent = "Start";
                         pauseButton.textContent = "Paus";
                         this.updateEvolutionStatus();
-                    }
+                    },
+                    action => this.showCatAction(action)
                 );
         
                 this.simulation.start();
@@ -193,63 +200,80 @@ export default class GUI {
         requestAnimationFrame(() => this.updateGUI());
     }
 
-    //Anpassad för den globala: 
-    showEvolution(evolutionInfo) {
-        let evolutionText = "";
-    
-        for (const result of evolutionInfo.results) {
-    
-            evolutionText += `
-                <div>
-                    <h3><strong>Cat ${result.catId}</strong></h3>
-            `;
-    
-            if (!result.reproduced) {
-    
-                evolutionText += `
-                    <p>Not enough parasites for reproduction</p>
-                `;
-    
-            } else {
-    
-                evolutionText += `
-                    <p>New parasite: #${result.parasiteId}</p>
-                    <p> Parent 1: #${result.parent1} — Fitness: ${result.parent1Fitness.toFixed(2)}</p>
-                    <p> Parent 2: #${result.parent2} — Fitness: ${result.parent2Fitness.toFixed(2)}</p>
-    
-                    <h2><strong>Mutations:</strong></h2>
-                `;
-    
-                if (result.mutations.length === 0) {
-    
-                    evolutionText += `
-                        <p>No mutation occurred</p>
-                    `;
-    
-                } else {
-    
-                    for (const mutation of result.mutations) {
-                        evolutionText += `
-                            <p>
-                                ${mutation.gene}:
-                                ${mutation.oldValue.toFixed(2)}
-                                →
-                                ${mutation.newValue.toFixed(2)}
-                            </p>
-                        `;
-                    }
-                }
-            }
-    
-            evolutionText += `
-                </div>
-                <hr>
-            `;
+    showCatAction(action) {
+        if (action.round !== this.currentEvolutionRound) {
+            this.currentEvolutionRound = action.round;
+            this.catActions = [];
         }
-    
-        this.evolutionInfo.innerHTML = `
-            <h3>Latest Evolution</h3>
-            ${evolutionText}
-        `;
+
+        this.catActions.push(action);
+        this.renderEvolutionInfo();
+    }
+
+    showEvolution(evolutionInfo) {
+        this.currentEvolutionRound = evolutionInfo.round;
+        this.catActions = evolutionInfo.catActions;
+        this.bestFitness = evolutionInfo.bestFitness;
+        this.renderEvolutionInfo();
+    }
+
+    renderEvolutionInfo() {
+        this.evolutionInfo.replaceChildren();
+
+        const actionsHeading = document.createElement("h3");
+        actionsHeading.textContent = `Actions in evolution round ${this.currentEvolutionRound ?? 1}`;
+        this.evolutionInfo.appendChild(actionsHeading);
+
+        const catIds = new Set([0, 1, ...this.catActions.map(action => action.catId)]);
+        for (const catId of catIds) {
+            const catHeading = document.createElement("h4");
+            catHeading.textContent = `Cat ${catId}`;
+            this.evolutionInfo.appendChild(catHeading);
+
+            const catActions = this.catActions.filter(action => action.catId === catId);
+            if (catActions.length === 0) {
+                const emptyMessage = document.createElement("p");
+                emptyMessage.textContent = "No parasite eaten this round.";
+                this.evolutionInfo.appendChild(emptyMessage);
+                continue;
+            }
+
+            const actionList = document.createElement("ul");
+            for (const action of catActions) {
+                const item = document.createElement("li");
+                item.textContent = `Cat ${action.catId} ate parasite ${action.parasiteId}`;
+                actionList.appendChild(item);
+            }
+            this.evolutionInfo.appendChild(actionList);
+        }
+
+        const fitnessHeading = document.createElement("h3");
+        fitnessHeading.textContent = "Most successful parasite";
+        this.evolutionInfo.appendChild(fitnessHeading);
+
+        if (!this.bestFitness) {
+            const emptyMessage = document.createElement("p");
+            emptyMessage.textContent = "No fitness yet...";
+            this.evolutionInfo.appendChild(emptyMessage);
+            return;
+        }
+
+        const fitness = document.createElement("p");
+        fitness.textContent =
+            `Parasite ${this.bestFitness.parasiteId}: ` +
+            `${this.bestFitness.successfulTransmissions} successful transmissions `;
+        this.evolutionInfo.appendChild(fitness);
+
+        const traitsHeading = document.createElement("h4");
+        traitsHeading.textContent = "Traits";
+        this.evolutionInfo.appendChild(traitsHeading);
+
+        const traitsList = document.createElement("ul");
+        for (const [trait, value] of Object.entries(this.bestFitness.traits)) {
+            const item = document.createElement("li");
+            item.textContent = `${trait}: ${value.toFixed(2)}`;
+            traitsList.appendChild(item);
+        }
+        this.evolutionInfo.appendChild(traitsList);
     }
 }

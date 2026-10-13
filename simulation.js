@@ -15,11 +15,12 @@ const PARASITE_TRANSMISSION_CHANCE = 0.85;
 const IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP = 3;
 
 class Simulation {
-    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onEvolution, onStop = () => {}) {
+    constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onEvolution, onStop = () => {}, onCatAction = () => {}) {
         this.isRunning = false;
         this.isPaused = false;
         this.onEvolution = onEvolution; //För info om generationsrunda
         this.onStop = onStop;
+        this.onCatAction = onCatAction;
         this.stopReason = null;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
@@ -36,6 +37,7 @@ class Simulation {
         this.cats = [];
         this.parasites = [];
         this.poos = []; 
+        this.catActions = [];
         this.nextParasiteId = numberOfParasites + 1;
 
         this.behaviourstore = []; //array för att alla ska ha eget betende
@@ -146,7 +148,15 @@ class Simulation {
         }
     
         cat.eatenParasites.push(rat.parasite);
-    
+
+        const action = {
+            round: this.generation,
+            catId: cat.id,
+            parasiteId: rat.parasite.id
+        };
+        this.catActions.push(action);
+        this.onCatAction(action);
+
         console.log(
             `Cat ${cat.id} ate parasite ${rat.parasite.id}`
         );
@@ -191,6 +201,24 @@ class Simulation {
             traitScore: item.traitScore,
             successfulTransmissions: item.successfulTransmissions
         }));
+
+        let bestFitness = null;
+        if (populationFitness.length > 0) {
+            const best = populationFitness.reduce((currentBest, item) =>
+                item.fitness > currentBest.fitness ? item : currentBest
+            );
+            bestFitness = {
+                round: this.generation,
+                parasiteId: best.parasite.id,
+                successfulTransmissions: best.successfulTransmissions,
+                traits: {
+                    aggressiveness: best.parasite.aggressiveness,
+                    manipulation: best.parasite.manipulation,
+                    hostSurvivalTime: best.parasite.hostSurvivalTime,
+                    pooSurvivalTime: best.parasite.pooSurvivalTime
+                }
+            };
+        }
 
         console.log(`Fitness and observed outcomes for evolution round ${this.generation}:`);
         if (fitnessLog.length > 0) {
@@ -284,24 +312,22 @@ class Simulation {
         // 7. Skicka hela evolutionens resultat till GUI
         if (this.onEvolution) {
             this.onEvolution({
+                round: this.generation,
                 generation: this.generation,
-                results: evolutionResults
+                results: evolutionResults,
+                catActions: [...this.catActions],
+                bestFitness
             });
         }
+        this.catActions = [];
     
         // 8. Starta om den globala evolutionstimern
         this.reproductionTimer.reset();
     }
 
     hasParasites() {
-        return (
-            this.rats.some(rat => rat.parasite) ||
-            this.poos.some(poo => poo.parasite) ||
-            this.cats.some(cat =>
-                cat.currentParasite ||
-                cat.eatenParasites?.length > 0
-            )
-        );
+        return this.rats.some(rat => rat.parasite) ||
+            this.poos.some(poo => poo.parasite);
     }
 
     finish(reason) {
