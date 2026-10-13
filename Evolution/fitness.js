@@ -9,7 +9,7 @@ class Fitness {
                 0.15 * parasite.pooSurvivalTime
             ) / 0.80;
 
-            const fitness = parasite.successfulTransmissions;
+            const fitness = 0.50 * parasite.successfulTransmissions + 0.50 * traitScore;
 
             return {
                 parasite: parasite,
