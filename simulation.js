@@ -12,7 +12,7 @@ import Timer from "./timer.js";
 
 const PARASITE_TRANSMISSION_CHANCE = 0.85;
 
-const IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP = 5;
+const IDENTICAL_FITNESS_EVOLUTIONS_TO_STOP = 3;
 
 class Simulation {
     constructor(canvas, numberOfRats = 10, numberOfCats = 2, numberOfParasites = 3, onEvolution, onStop = () => {}, onCatAction = () => {}) {
